@@ -1,5 +1,55 @@
 {% extends "base.html" %}
 {% block title %}Portoflio{% endblock %}
 {% block content %}
+<style>
 
+    .buttons {
+    width: 200px;
+    margin: 0 auto;
+    display: inline;
+    }
+
+</style>
+<div class="container">
+    <div class="row">
+        <div class="col text-center">
+            <h1>Portfolio</h1>
+            <br>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col text-center">
+            <h3>Portfolio Value</h3>
+            <br>
+            <ul class="list-group">
+                <li class="list-group-item"><a href="#">Stock 1 Name: Change%</a></li>
+                <li class="list-group-item"><a href="#">Stock 2 Name: Change%</a></li>
+                <li class="list-group-item"><a href="#">Stock 3 Name: Change%</a></li>
+                <li class="list-group-item"><a href="#">Stock 4 Name: Change%</a></li>
+                <li class="list-group-item"><a href="#">Stock 5 Name: Change%</a></li>
+                <button onclick="transfer()" class="buttons">Transfer</button>
+                <button onclick="withdrawl()" class="buttons">Withdrawl</button>
+            </ul>
+        </div>
+        <div class="col text-center">
+            <h3>My Stocks</h3>
+            <br>
+            <ul class="list-group"></ul>
+                <p>graph to go here</p>
+            </ul>
+        </div>
+    </div>
+</div>
+<div>
+    <script>
+        function transfer() {
+            alert("transfer time")
+        }
+
+        function withdrawl() {
+            alert("withdrawl time")
+        }
+    </script> 
+    <!-- <script src="portfolio.js"></script>  -->
+</div>
 {% endblock %}
