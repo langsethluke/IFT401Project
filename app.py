@@ -26,4 +26,8 @@ def accounttransfer():
 def adminstocks():
     return render_template('adminstocks.html')
 
+@app.route("/create_account")
+def create_account(): 
+    return render_template('create_account.html')
+
 if __name__ == "__main__": app.run(debug=True)
