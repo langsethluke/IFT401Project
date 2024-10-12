@@ -1,40 +1,43 @@
 {% extends "base.html" %}
 {% block title %}Home{% endblock %}
 {% block content %}
-    <div class="container">
+    <div class="container-fluid">
         <div class="row">
-            <div class="col text-center">
+            <div class="col pl-4">
+                <br>
+                <br>
                 <h1>Welcome User</h1>
                 <br>
+            </div> 
+        </div>
+        <div class="row">
+            <div class="col pl-4">
                 <h2>Today's Portfolio Value: Display Total Value Data</h2>
                 <br>
                 <h2>Today's Change: Display Total Value Change%</h2>
                 <br>
             </div>
-        </div>
-        <div class="row">
-            <div class="col text-center">
+            <div class="col-3 text-center">
                 <h3>Top Performers</h3>
                 <br>
-                <ul class="list-group">
-                    <li class="list-group-item"><a href="#">Stock 1 Name: Change%</a></li>
-                    <li class="list-group-item"><a href="#">Stock 2 Name: Change%</a></li>
+                <ul class="list-group green">
+                    <li class="list-group-item"><a href="#">AAPL 2.5%</a></li>
+                    <li class="list-group-item"><a href="#">F 3.5%</a></li>
                     <li class="list-group-item"><a href="#">Stock 3 Name: Change%</a></li>
                     <li class="list-group-item"><a href="#">Stock 4 Name: Change%</a></li>
                     <li class="list-group-item"><a href="#">Stock 5 Name: Change%</a></li>
                 </ul>
             </div>
-            <div class="col text-center">
+            <div class="col-3 text-center">
                 <h3>Low Performers</h3>
                 <br>
-                <ul class="list-group"></ul>
-                    <li class="list-group-item"><a href="#">Stock 1 Name: Change%</a></li>
+                <ul class="list-group red">
+                    <li class="list-group-item"><a href="#">F 3.5%</a></li>
                     <li class="list-group-item"><a href="#">Stock 2 Name: Change%</a></li>
                     <li class="list-group-item"><a href="#">Stock 3 Name: Change%</a></li>
                     <li class="list-group-item"><a href="#">Stock 4 Name: Change%</a></li>
                     <li class="list-group-item"><a href="#">Stock 5 Name: Change%</a></li>
                 </ul>
             </div>
-        </div>
     </div>
 {% endblock %}

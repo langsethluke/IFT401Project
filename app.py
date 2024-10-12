@@ -22,4 +22,8 @@ def tradinghistory():
 def accounttransfer():
     return render_template('accounttransfer.html')
 
+@app.route('/adminstocks')
+def adminstocks():
+    return render_template('adminstocks.html')
+
 if __name__ == "__main__": app.run(debug=True)
