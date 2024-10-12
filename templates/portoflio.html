@@ -3,10 +3,51 @@
 {% block content %}
 <style>
 
+    body {
+        background-color: #000;
+        font-family: Arial, sans-serif;
+        margin: 0;
+        color: #fff;
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+    }
+
     .buttons {
-    width: 200px;
-    margin: 0 auto;
-    display: inline;
+        width: 200px;
+        margin: 0 auto;
+        display: inline;
+        background-color: #555;
+    }
+
+    .buttons-container {
+        display: inline;
+    }
+
+    .box1 {
+        background-color: #343a40 ;
+        margin-right: 2.5%;
+        border-radius: 5%;
+        height: 60vh;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        padding-bottom: 20px;
+    }
+
+    .box2 {
+        background-color: #343a40 ;
+        margin-left: 2.5%;
+        border-radius: 5%;
+    }
+
+    .list-group-item {
+        background-color: #343a40 ;
+        border: none;
+    }
+
+    .content {
+        flex-grow: 1;
     }
 
 </style>
@@ -18,7 +59,7 @@
         </div>
     </div>
     <div class="row">
-        <div class="col text-center">
+        <div class="col text-center box1">
             <h3>Portfolio Value</h3>
             <br>
             <ul class="list-group">
@@ -27,29 +68,64 @@
                 <li class="list-group-item"><a href="#">Stock 3 Name: Change%</a></li>
                 <li class="list-group-item"><a href="#">Stock 4 Name: Change%</a></li>
                 <li class="list-group-item"><a href="#">Stock 5 Name: Change%</a></li>
-                <button onclick="transfer()" class="buttons">Transfer</button>
-                <button onclick="withdrawl()" class="buttons">Withdrawl</button>
             </ul>
+            <div class="buttons-container">
+                <button onclick="transfer()" class="buttons btn btn-dark">Transfer</a>
+                <button onclick="withdrawl()" class="buttons btn btn-dark">Withdrawl</button>
+            </div>
         </div>
-        <div class="col text-center">
+        <div class="col text-center box2">
             <h3>My Stocks</h3>
             <br>
-            <ul class="list-group"></ul>
-                <p>graph to go here</p>
-            </ul>
+            <div><canvas id="stocks"></canvas></div>
         </div>
     </div>
 </div>
 <div>
     <script>
+        // import Chart from 'chart.js/auto'
+
         function transfer() {
-            alert("transfer time")
+            window.location.href = "{{ url_for('trade') }}";
         }
 
         function withdrawl() {
             alert("withdrawl time")
         }
+
+        // (async function() {
+        // const data = [
+        //     { year: 2010, count: 10 },
+        //     { year: 2011, count: 20 },
+        //     { year: 2012, count: 15 },
+        //     { year: 2013, count: 25 },
+        //     { year: 2014, count: 22 },
+        //     { year: 2015, count: 30 },
+        //     { year: 2016, count: 28 },
+        // ];
+
+        // new Chart(
+        //     document.getElementById('stocks'),
+        //     {
+        //     type: 'bar',
+        //     data: {
+        //         labels: data.map(row => row.year),
+        //         datasets: [
+        //         {
+        //             label: 'Acquisitions by year',
+        //             data: data.map(row => row.count)
+        //         }
+        //         ]
+        //     }
+        //     }
+        // );
+        // })();
+
+ 
+
+ 
     </script> 
-    <!-- <script src="portfolio.js"></script>  -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 </div>
 {% endblock %}
