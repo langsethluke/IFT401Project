@@ -16,7 +16,7 @@
   </head>
   <body>
     <header>
-      <nav class="navbar navbar-expand-lg navbar-light justify-content-end">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark justify-content-end">
         <a class="navbar-brand" href="{{ url_for('home') }}">
           <img src="/static/logo.png" width="60" height="60" class="d-inline-block align-top">
           Goat Trading
@@ -49,8 +49,8 @@
       </nav>
     </header>
     <main>{% block content %}{% endblock %}</main>
-    <footer>
-      <p>Created by: Luke Langseth, Isaac Petray, Brandon Tubman, and Hari Adapala</p>
+    <footer class="bg-dark text-center mt-auto">
+      <p>Footer content here</p>
     </footer>
     <!-- Bootstrap JS and dependencies -->
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
