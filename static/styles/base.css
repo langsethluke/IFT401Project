@@ -1,0 +1,80 @@
+/* Navbar Styles */
+
+nav {
+    /*background-color: #248232;*/
+    background-color: black;
+}
+
+.navbar .navbar-brand {
+    color: #FCFFFC;
+    font-size: 40px;
+}
+
+.navbar .navbar-nav .nav-link {
+    color: #FCFFFC;
+    font-size: 25px;
+}
+
+/* Navbar Hover Styles*/
+
+.navbar .navbar-brand:hover {
+    color: #2D3A3A;
+}
+
+.navbar .navbar-nav .nav-link:hover {
+    color: #2D3A3A;
+}
+
+/* Body Styles */
+
+body {
+    color: #FCFFFC; 
+    background-color: black;
+}
+
+/* List Styles */
+
+.list-group .list-group-item {
+    background-color: black;
+}
+
+.list-group .list-group-item a {
+    color: #FCFFFC;
+    font-size: 25px;
+    float: left;
+    padding-left: 15px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+}
+
+/* List Hover Styles */
+
+.list-group.green .list-group-item a:hover {
+    color: green;
+    text-decoration: none;
+}
+
+.list-group.red .list-group-item a:hover {
+    color: red;
+    text-decoration: none;
+}
+
+/* Button Styles */
+
+button {
+    font-size: 20px;
+    border-radius: 45px;
+    padding: 10px;
+}
+
+/* Footer Stlyes */
+
+footer {
+    background-color: black;
+    color: #FCFFFC;
+    position: fixed;
+    left: 0;
+    bottom: 0;
+    text-align: center;
+    width: 100%;
+}
