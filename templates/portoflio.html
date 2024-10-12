@@ -28,7 +28,7 @@
         background-color: #343a40 ;
         margin-right: 2.5%;
         border-radius: 5%;
-        height: 60vh;
+        height: 80vh;
         display: flex;
         flex-direction: column;
         justify-content: space-between;
@@ -38,7 +38,9 @@
     .box2 {
         background-color: #343a40 ;
         margin-left: 2.5%;
+        height: 80vh;
         border-radius: 5%;
+        margin-bottom: 5%;
     }
 
     .list-group-item {
@@ -48,6 +50,12 @@
 
     .content {
         flex-grow: 1;
+    }
+
+    .chart-container {
+        position: relative;
+        margin: auto;
+        height: 70vh;
     }
 
 </style>
@@ -76,14 +84,15 @@
         </div>
         <div class="col text-center box2">
             <h3>My Stocks</h3>
-            <br>
-            <div><canvas id="stocks"></canvas></div>
+            <div class="chart-container">
+                <canvas class="stocks"></canvas>
+            </div>
         </div>
     </div>
 </div>
 <div>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
-        // import Chart from 'chart.js/auto'
 
         function transfer() {
             window.location.href = "{{ url_for('trade') }}";
@@ -93,39 +102,28 @@
             alert("withdrawl time")
         }
 
-        // (async function() {
-        // const data = [
-        //     { year: 2010, count: 10 },
-        //     { year: 2011, count: 20 },
-        //     { year: 2012, count: 15 },
-        //     { year: 2013, count: 25 },
-        //     { year: 2014, count: 22 },
-        //     { year: 2015, count: 30 },
-        //     { year: 2016, count: 28 },
-        // ];
+        const chartData = {
+            labels: ["Stock1", "Stock2", "Stock3", "Stock4", "Others"],
+            data: [30, 17, 10, 7, 36],
+        };
 
-        // new Chart(
-        //     document.getElementById('stocks'),
-        //     {
-        //     type: 'bar',
-        //     data: {
-        //         labels: data.map(row => row.year),
-        //         datasets: [
-        //         {
-        //             label: 'Acquisitions by year',
-        //             data: data.map(row => row.count)
-        //         }
-        //         ]
-        //     }
-        //     }
-        // );
-        // })();
+        const stocks = document.querySelector(".stocks")
 
- 
+        new Chart(stocks, {
+            type: "doughnut",
+            data: {
+                labels: chartData.labels,
+                datasets: [
+                    {
+                        label: "Stocks",
+                        data: chartData.data,
+                    }
+                ]
+            }
 
+        })
  
     </script> 
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 </div>
 {% endblock %}
