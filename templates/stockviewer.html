@@ -1,0 +1,146 @@
+{% extends "index.html" %}
+{% block title %}Stock Viewer{% endblock %}
+{% block content %}
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col ps-4">
+                <br>
+                <h1>Stock Price Name</h1>
+                <h5>Stock Ticker Symbol</h5>
+                <br>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-7 ps-4">
+                <h2>Current Price: $Price</h2>
+                <h3>Today's Change: Display Total Value Change%</h3>
+                <br>
+                <h6>Opening Price: Price</h6>
+                <h6>Today's High: Price</h6>
+                <h6>Today's Low: Price</h6>
+                <h6>Total Market Cap: Price</h6>
+                <br>
+                <canvas id="myChart"></canvas>
+            </div>
+            <div class="col-5 text-center">
+                <h4>Number of Shares Owned: Display Shares</h4>
+                <br>
+                <h5>Current Cash Balance: Balance</h5>
+                <br>
+                <br>
+                <button id="buy" type="button" class="button-green btn btn-secondary me-3" style="width:85px">Buy</button>
+                <button id="sell" type="button" class="button-red btn btn-secondary" style="width:85px">Sell</button>
+                <br>
+                <br>
+                <br>
+                <form>
+                    <div class="mb-3">
+                      <input id="numOfShares" type="number" min="1" class="input form-control w-50 mx-auto" placeholder="Number of Shares">
+                    </div>
+                </form>
+                <br>
+                <h6 id="displayTotal">Total Buy Amount for X Number of Shares: Price</h6>
+                <br>
+                <button id="orderButton" type="button" class="button-green btn btn-primary w-25" data-bs-toggle="modal" data-bs-target="#buyModal">
+                    Buy
+                </button>
+            </div>
+        </div> 
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</body>
+
+<!-- Buy Modal -->
+<div class="modal fade" id="buyModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+            <h4>Confirm Buy Order</h4>
+          <button type="button" class="close btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body text-center">
+            <h5>Confirm the Purchase of X Number of Shares at the Total Price of $price?</h5>
+        </div>
+        <div class="modal-footer justify-content-center">
+          <button type="button" class="button-green btn btn-secondary" data-bs-dismiss="modal">Confirm</button>
+          <a class="button-red btn btn-primary" href="{{ url_for('stockviewer') }}" role="button">Cancel</a>
+        </div>
+      </div>
+    </div>
+</div>
+
+<!-- Sell Modal -->
+<div class="modal fade" id="sellModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+            <h4>Confirm Sell Order</h4>
+          <button type="button" class="close btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body text-center">
+            <h5>Confirm the Sale of X Number of Shares at the Total Price of $price?</h5>
+        </div>
+        <div class="modal-footer justify-content-center">
+          <button type="button" class="button-green btn btn-secondary" data-bs-dismiss="modal">Confirm</button>
+          <a class="button-red btn btn-primary" href="{{ url_for('stockviewer') }}" role="button">Cancel</a>
+        </div>
+      </div>
+    </div>
+</div>
+
+<script>
+
+    const ctx = document.getElementById("myChart");
+
+    const chartData = {
+        labels: ["9:30am", "10am", "10:30am", "11am", "11:30am", "12pm", "12:30pm", "1pm", "1:30pm", "2pm", "2:30pm", "3pm", "3:30pm", "4pm"],
+        data: [30, 17, 10, 7, 36, 5, 5, 5, 5, 30, 17, 10, 7, 36],
+    };
+
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: chartData.labels,
+            datasets: [
+                {
+                    data: chartData.data,
+                    borderColor: 'green',
+                    backgroundColor: 'rgba(0, 128, 0, 0.13)',
+                    fill: true,
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            interaction: {
+                intersect: false,
+            },
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    })
+
+    document.getElementById('buy').addEventListener('click', function() {
+        document.getElementById('displayTotal').textContent = 'Total Buy Amount for X Number of Shares: Price';
+        document.getElementById('orderButton').textContent = 'Buy';
+        document.getElementById('orderButton').classList.replace("button-red", "button-green");
+        document.getElementById('orderButton').setAttribute('data-bs-target', '#buyModal');
+    });
+
+    document.getElementById('sell').addEventListener('click', function() {
+        document.getElementById('displayTotal').textContent = 'Total Sell Amount for X Number of Shares: Price';
+        document.getElementById('orderButton').textContent = 'Sell';
+        document.getElementById('orderButton').classList.replace("button-green", "button-red");
+        document.getElementById('orderButton').setAttribute('data-bs-target', '#sellModal');
+    });
+</script>
+{% endblock %}

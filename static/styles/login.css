@@ -1,0 +1,96 @@
+/* Body Styles */
+
+body {
+    color: white; 
+    background-color: black;
+}
+
+/* Center Styles */
+
+.center {
+    padding-bottom: 200px;
+}
+
+/* Text Input Styles */
+
+.input {
+    background-color: black;
+    border-top-width: 0;
+    border-left-width: 0;
+    border-right-width: 0;
+    border-bottom-width: medium;
+    color: white;
+    border-radius: 0;
+}
+
+.input:hover {
+    background-color: #49494a;
+}
+
+.input:focus {
+    background-color: #49494a;
+    color: white;
+    outline: none !important;
+    box-shadow: none !important;
+}
+
+.input::placeholder {
+    color: white;
+}
+
+/* Button Styles */
+
+.button-green {
+    background-color: green;
+    border-color: green;
+    color: white;
+}
+
+.button-green:hover {
+    background-color: black;
+    border-color: green;
+    color: green;
+}
+
+.button-green:focus {
+    background-color: black;
+    border-color: green;
+    color: green;
+    outline: none !important;
+}
+
+.button-red {
+    background-color: red;
+    border-color: red;
+    color: white;
+}
+
+.button-red:hover {
+    background-color: black;
+    border-color: red;
+    color: red;
+    text-decoration: none;
+}
+
+/* Link Colors */
+
+a {
+    color: green;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+/* Footer Stlyes */
+
+footer {
+    background-color: black;
+    color: white;
+    position: fixed;
+    left: 0;
+    bottom: 0;
+    text-align: center;
+    width: 100%;
+}

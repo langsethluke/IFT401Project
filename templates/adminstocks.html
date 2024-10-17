@@ -1,25 +1,145 @@
-{% extends "base.html" %}
+{% extends "index.html" %}
 {% block title %}Admin Stock Page{% endblock %}
 
 {% block content %}
+<body>
     <div class="container-fluid">
         <div class="row">
-            <div class="col">
+            <div class="col ps-4">
+                <br>
                 <h1>Stock Management Page</h1>
                 <br>
             </div>
         </div>
         <div class="row">
-            <div class="col">
-                <h2>List of Current Stocks</h2>
+            <div class="col ps-4">
+                <button type="button" class="button-green btn btn-primary me-3" data-bs-toggle="modal" data-bs-target="#createStockModal">
+                    Create a Stock
+                </button>
+                <!--<button type="button" class="button-green btn btn-primary me-3" data-bs-toggle="modal" data-bs-target="#editStockModal">
+                    Edit a Stock
+                </button>
+                <button type="button" class="button-red btn btn-primary me-3" data-bs-toggle="modal" data-bs-target="#deleteStockModal">
+                    Delete a Stock
+                </button>-->
+                <br>
+                <br>
             </div>
         </div>
         <div class="row">
-            <div class="col">
-                <button type="button">Create a Stock</button>
-                <button type="button">Edit a Stock</button>
-                <button type="button">Delete a Stock</button>
+            <div class="col ps-4">
+                <h2>List of Current Stocks</h2>
+                </br>
             </div>
         </div>
+        <div class="row">
+          <div class="col ps-4">
+            <table class="table table-dark table-striped">
+              <thead>
+                <tr class="text-center">
+                  <th scope="col">Name of Stock</th>
+                  <th scope="col">Ticker Symbol</th>
+                  <th scope="col">Starting Market Price</th>
+                  <th scope="col">Current Market Price</th>
+                  <th scope="col">Number of Total Shares</th>
+                  <th scope="col">Number of Available Shares to Purchase</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for stock in stocks %}
+                <tr class="text-center">
+                  <th scope="row">{{ stock.stock_name }}</th>
+                  <td>{{ stock.ticker_symbol }}</td>
+                  <td>${{ "{:,.2f}".format(stock.starting_market_price) }}</td>
+                  <td>${{ "{:,.2f}".format(stock.current_market_price) }}</td>
+                  <td>{{ "{:,}".format(stock.number_of_total_shares) }}</td>
+                  <td>{{ "{:,}".format(stock.number_of_shares_to_purchase) }}</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
     </div>
+</body>
+
+<!-- Create a Stock Modal -->
+<div class="modal fade" id="createStockModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+            <h2>Create a Stock</h2>
+          <button type="button" class="close btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body text-center">
+            <form method="POST" action="" id="form">
+                <div class="mb-3">
+                  {{ createform.hidden_tag() }}
+                  {{ createform.stock_name(class="input form-control", placeholder="Stock Name") }}
+                  <!--<input type="text" class="input form-control" aria-describedby="emailHelp" placeholder="Stock Name">-->
+                </div>
+                <div class="mb-3">
+                  {{ createform.ticker_symbol(class="input form-control", placeholder="Ticker Symbol (Maxium of Four Letters)") }}
+                  <!--<input type="text" class="input form-control" placeholder="Ticker Symbol (Maxium of Four Letters)">-->
+                </div>
+                <div class="mb-3">
+                    {{ createform.number_of_total_shares(class="input form-control", placeholder="Number of Shares") }}
+                    <!--<input type="text" class="input form-control" placeholder="Number of Shares">-->
+                </div>
+                <div class="mb-3">
+                    {{ createform.starting_market_price(class="input form-control", placeholder="Starting Market Price") }}
+                    <!--<input type="text" class="input form-control" placeholder="Starting Market Price">-->
+                </div>
+              </form>
+        </div>
+        <div class="modal-footer justify-content-center">
+          <p>{{ createform.submit(class="button-green btn btn-secondary", value="Confirm", onclick="form_submit()") }}</p>
+          <!--<button type="submit" class="button-green btn btn-primary">Submit</button>-->
+          <a class="button-red btn btn-primary" href="{{ url_for('adminstocks') }}" role="button">Cancel</a>
+        </div>
+      </div>
+    </div>
+</div> 
+
+<!-- Edit a Stock Modal
+<div class="modal fade" id="editStockModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+            <h2>Edit a Stock</h2>
+          <button type="button" class="close btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body text-center">
+        </div>
+        <div class="modal-footer justify-content-center">
+          <button type="button" class="button-green btn btn-secondary" data-bs-dismiss="modal">Confirm</button>
+          <a class="button-red btn btn-primary" href="{{ url_for('adminstocks') }}" role="button">Cancel</a>
+        </div>
+      </div>
+    </div>
+</div> 
+
+ Delete a Stock Modal 
+<div class="modal fade" id="deleteStockModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+            <h2>Delete a Stock</h2>
+          <button type="button" class="close btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body text-center">
+        </div>
+        <div class="modal-footer justify-content-center">
+          <button type="button" class="button-green btn btn-secondary" data-bs-dismiss="modal">Confirm</button>
+          <a class="button-red btn btn-primary" href="{{ url_for('adminstocks') }}" role="button">Cancel</a>
+        </div>
+      </div>
+    </div>
+</div> -->
+
+<script type="text/javascript">
+  function form_submit() {
+    document.getElementById("form").submit();
+   }    
+</script>
 {% endblock %}

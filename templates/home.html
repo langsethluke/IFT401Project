@@ -1,43 +1,87 @@
-{% extends "base.html" %}
-{% block title %}Home{% endblock %}
-{% block content %}
-    <div class="container-fluid">
-        <div class="row">
-            <div class="col pl-4">
-                <br>
-                <br>
-                <h1>Welcome User</h1>
-                <br>
-            </div> 
+{% extends "index.html" %} 
+{% block title %}Home{% endblock %} 
+{% block content%}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col ps-4">
+            <br>
+            <h1>Welcome {{ username.first_name }}</h1>
+            <br>
         </div>
-        <div class="row">
-            <div class="col pl-4">
-                <h2>Today's Portfolio Value: Display Total Value Data</h2>
-                <br>
-                <h2>Today's Change: Display Total Value Change%</h2>
-                <br>
-            </div>
-            <div class="col-3 text-center">
-                <h3>Top Performers</h3>
-                <br>
-                <ul class="list-group green">
-                    <li class="list-group-item"><a href="#">AAPL 2.5%</a></li>
-                    <li class="list-group-item"><a href="#">F 3.5%</a></li>
-                    <li class="list-group-item"><a href="#">Stock 3 Name: Change%</a></li>
-                    <li class="list-group-item"><a href="#">Stock 4 Name: Change%</a></li>
-                    <li class="list-group-item"><a href="#">Stock 5 Name: Change%</a></li>
-                </ul>
-            </div>
-            <div class="col-3 text-center">
-                <h3>Low Performers</h3>
-                <br>
-                <ul class="list-group red">
-                    <li class="list-group-item"><a href="#">F 3.5%</a></li>
-                    <li class="list-group-item"><a href="#">Stock 2 Name: Change%</a></li>
-                    <li class="list-group-item"><a href="#">Stock 3 Name: Change%</a></li>
-                    <li class="list-group-item"><a href="#">Stock 4 Name: Change%</a></li>
-                    <li class="list-group-item"><a href="#">Stock 5 Name: Change%</a></li>
-                </ul>
-            </div>
     </div>
-{% endblock %}
+    <div class="row">
+        <div class="col-6 ps-4">
+            <h2>Today's Portfolio Value: Display Total Value Data</h2>
+            <br />
+            <h2>Today's Change: Display Total Value Change%</h2>
+            <br />
+            <canvas id="myChart"></canvas>
+        </div>
+        <div class="col-3 text-center">
+            <h3>Top Performers</h3>
+            <br />
+            <ul class="list list-group top">
+                <li class="item item-green list-group-item"><a href="#">AAPL 2.5%</a></li>
+                <li class="item item-green list-group-item"><a href="#">F 3.5%</a></li>
+                <li class="item item-green list-group-item"><a href="#">Stock 3 Name: Change%</a></li>
+                <li class="item item-green list-group-item"><a href="#">Stock 4 Name: Change%</a></li>
+                <li class="item item-green list-group-item"><a href="#">Stock 5 Name: Change%</a></li>
+            </ul>
+        </div>
+        <div class="col-3 text-center">
+        <h3>Low Performers</h3>
+        <br />
+        <ul class="list list-group low">
+            <li class="item item-red list-group-item"><a href="#">F 3.5%</a></li>
+            <li class="item item-red list-group-item"><a href="#">Stock 2 Name: Change%</a></li>
+            <li class="item item-red list-group-item"><a href="#">Stock 3 Name: Change%</a></li>
+            <li class="item item-red list-group-item"><a href="#">Stock 4 Name: Change%</a></li>
+            <li class="item item-red list-group-item"><a href="#">Stock 5 Name: Change%</a></li>
+        </ul>
+        </div>
+    </div> 
+</div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+
+        const ctx = document.getElementById("myChart");
+
+        const chartData = {
+            labels: ["9:30am", "10am", "10:30am", "11am", "11:30am", "12pm", "12:30pm", "1pm", "1:30pm", "2pm", "2:30pm", "3pm", "3:30pm", "4pm"],
+            data: [30, 17, 10, 7, 36, 5, 5, 5, 5, 30, 17, 10, 7, 36],
+        };
+
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: chartData.labels,
+                datasets: [
+                    {
+                        data: chartData.data,
+                        borderColor: 'green',
+                        backgroundColor: 'rgba(0, 128, 0, 0.13)',
+                        fill: true,
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                interaction: {
+                    intersect: false,
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        })
+
+    </script>
+  {% endblock %}
