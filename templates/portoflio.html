@@ -1,113 +1,46 @@
-{% extends "base.html" %}
+{% extends "index.html" %}
 {% block title %}Portoflio{% endblock %}
 {% block content %}
-<style>
-
-    body {
-        background-color: #000;
-        font-family: Arial, sans-serif;
-        margin: 0;
-        color: #fff;
-        display: flex;
-        flex-direction: column;
-        min-height: 100vh;
-    }
-
-    .buttons {
-        width: 200px;
-        margin: 0 auto;
-        display: inline;
-        background-color: #555;
-    }
-
-    .buttons-container {
-        display: inline;
-    }
-
-    .box1 {
-        background-color: #343a40 ;
-        margin-right: 2.5%;
-        border-radius: 5%;
-        height: 80vh;
-        display: flex;
-        flex-direction: column;
-        justify-content: space-between;
-        padding-bottom: 20px;
-    }
-
-    .box2 {
-        background-color: #343a40 ;
-        margin-left: 2.5%;
-        height: 80vh;
-        border-radius: 5%;
-        margin-bottom: 5%;
-    }
-
-    .list-group-item {
-        background-color: #343a40 ;
-        border: none;
-    }
-
-    .content {
-        flex-grow: 1;
-    }
-
-    .chart-container {
-        position: relative;
-        margin: auto;
-        height: 70vh;
-    }
-
-</style>
-<div class="container">
+<div class="container-fluid">
     <div class="row">
-        <div class="col text-center">
+        <div class="col ps-4">
+            <br>
             <h1>Portfolio</h1>
             <br>
         </div>
     </div>
     <div class="row">
-        <div class="col text-center box1">
-            <h3>Portfolio Value</h3>
+        <div class="col-6 ps-4">
+            <h2>Portfolio Value: Value</h2>
             <br>
-            <ul class="list-group">
-                <li class="list-group-item"><a href="#">Stock 1 Name: Change%</a></li>
-                <li class="list-group-item"><a href="#">Stock 2 Name: Change%</a></li>
-                <li class="list-group-item"><a href="#">Stock 3 Name: Change%</a></li>
-                <li class="list-group-item"><a href="#">Stock 4 Name: Change%</a></li>
-                <li class="list-group-item"><a href="#">Stock 5 Name: Change%</a></li>
-            </ul>
-            <div class="buttons-container">
-                <button onclick="transfer()" class="buttons btn btn-dark">Transfer</a>
-                <button onclick="withdrawl()" class="buttons btn btn-dark">Withdrawl</button>
-            </div>
+            <h3>Amount in Cash: Value</h3>
+            <h3>Amount in Stocks: Value</h3>
+            <br>
+            <h3>History of Account Value</h3>
+            <canvas id="myChart"></canvas>
         </div>
-        <div class="col text-center box2">
-            <h3>My Stocks</h3>
+        <div class="col-4 text-center" style="margin-left: 200px">
+            <div>
+                <canvas id="stocks"></canvas>
+            </div>
             <div class="chart-container">
-                <canvas class="stocks"></canvas>
+                <canvas class="balance"></canvas>
             </div>
         </div>
     </div>
+    <div class="row">
+        <div class="col ps-4">
+            <h2>Stocks Owned</h2>
+        </div>
+    </div>
 </div>
-<div>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
-
-        function transfer() {
-            window.location.href = "{{ url_for('trade') }}";
-        }
-
-        function withdrawl() {
-            alert("withdrawl time")
-        }
-
         const chartData = {
-            labels: ["Stock1", "Stock2", "Stock3", "Stock4", "Others"],
-            data: [30, 17, 10, 7, 36],
+            labels: ["Cash", "Stocks"],
+            data: [30, 17,],
         };
-
-        const stocks = document.querySelector(".stocks")
 
         new Chart(stocks, {
             type: "doughnut",
@@ -115,15 +48,59 @@
                 labels: chartData.labels,
                 datasets: [
                     {
-                        label: "Stocks",
+                        label: "balance",
                         data: chartData.data,
                     }
                 ]
+            },
+            options: {
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                }
             }
 
         })
- 
-    </script> 
 
-</div>
+        
+        const ctx = document.getElementById("myChart");
+
+        const chartData2 = {
+            labels: ["9:30am", "10am", "10:30am", "11am", "11:30am", "12pm", "12:30pm", "1pm", "1:30pm", "2pm", "2:30pm", "3pm", "3:30pm", "4pm"],
+            data: [30, 17, 10, 7, 36, 5, 5, 5, 5, 30, 17, 10, 7, 36],
+        };
+
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: chartData2.labels,
+                datasets: [
+                    {
+                        data: chartData2.data,
+                        borderColor: 'green',
+                        backgroundColor: 'rgba(0, 128, 0, 0.13)',
+                        fill: true,
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                interaction: {
+                    intersect: false,
+                },
+                scales: {
+                    y: {
+                        beginAtZero: false,
+                    }
+                }
+            }
+        })
+    </script>
+
 {% endblock %}

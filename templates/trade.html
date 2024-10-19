@@ -1,77 +1,31 @@
-{% extends "base.html" %}
+{% extends "index.html" %}
 {% block title %}Trade{% endblock %}
 {% block content %}
-<style>
-
-    body {
-        background-color: #000;
-        font-family: Arial, sans-serif;
-        margin: 0;
-        color: #fff;
-        display: flex;
-        flex-direction: column;
-        min-height: 100vh;
-    }
-
-    .box {
-        background-color: #343a40 ;
-        border-radius: 5%;
-        height: 60vh;
-        width: 50%;
-        margin: 0 auto;
-        display: flex;
-        flex-direction: column;
-        justify-content: space-between;
-        padding-bottom: 20px;
-        padding: 2.5%;
-    }
-
-    .list-group-item {
-        background-color: #343a40 ;
-        border: none;
-    }
-
-    .content {
-        flex-grow: 1;
-    }
-
-    .buttons {
-        width: 200px;
-        margin: 0 auto;
-        display: inline;
-        background-color: #555;
-    }
-
-    .buttons-container {
-        display: inline;
-    }
-
-
-</style>
-<div class="container">
-    <div class="row">
-        <div class="col text-center">
-            <h1>Trade</h1>
-            <br>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col ps-4">
+                <br>
+                <h1>Trade</h1>
+                <br>
+            </div> 
+        </div>
+        <div class="row ps-3">
+            {% for stock in stocks %}
+            <div class="col-md-2">
+                <a class="card-hover" href="{{ url_for('stockviewer') }}">
+                    <div class="card">
+                        <div class="card-body">
+                            <h2>{{ stock.ticker_symbol }}</h2>
+                            <p class="pb-4">{{ stock.stock_name }}</p>
+                            <h3 class="pb-4">${{ "{:,.2f}".format(stock.current_market_price) }}</h3>
+                            <h4>Today's Change</h4>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            {% endfor %}
         </div>
     </div>
-    <div class="row">
-        <div class="text-center box">
-            <h3>Trade Stock</h3>
-            <br>
-            <h4>Stock Ticker Symbol</h4>
-            <h5>Company Full Name</h5>
-            <br>
-            <h5>Number of shares</h5>
-            <input type="text" placeholder="">
-            <br>
-            <div class="buttons-container">
-                <button onclick="transfer()" class="buttons btn btn-dark">Buy</button>
-                <button onclick="withdrawl()" class="buttons btn btn-dark">Sell</button>
-            </div>
-
-            
-    </div>
-</div>
-<div>
+</body>
 {% endblock %}

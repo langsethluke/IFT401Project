@@ -1,80 +1,190 @@
 /* Navbar Styles */
 
 nav {
-    /*background-color: #248232;*/
     background-color: black;
 }
 
+
 .navbar .navbar-brand {
-    color: #FCFFFC;
+    color: white;
     font-size: 40px;
 }
 
 .navbar .navbar-nav .nav-link {
-    color: #FCFFFC;
+    color: white;
     font-size: 25px;
 }
 
 /* Navbar Hover Styles*/
 
+
 .navbar .navbar-brand:hover {
-    color: #2D3A3A;
+    color: green;
 }
 
 .navbar .navbar-nav .nav-link:hover {
-    color: #2D3A3A;
+    color: green;
+}
+
+/* Navbar Dropdown Menu Styles */
+
+.dropdown-menu {
+    background-color: black;
+    border-color: white;
+}
+
+.dropdown-menu a {
+    font-size: 20px;
+    color: white;
+}
+
+.dropdown-menu a:hover {
+    background-color: black;
+    color: green;
 }
 
 /* Body Styles */
 
 body {
-    color: #FCFFFC; 
+    color: white; 
     background-color: black;
 }
 
 /* List Styles */
 
-.list-group .list-group-item {
+.list .item{
     background-color: black;
+    border-style: none;
 }
 
-.list-group .list-group-item a {
-    color: #FCFFFC;
+.list-group .item a {
+    color: white;
     font-size: 25px;
     float: left;
-    padding-left: 15px;
+    padding-left: 40px;
     padding-top: 10px;
     padding-bottom: 10px;
+    text-decoration: none;
 }
 
-/* List Hover Styles */
+/* List Hover Styles for Green or Red Items*/
 
-.list-group.green .list-group-item a:hover {
+.list .item-green a:hover {
     color: green;
     text-decoration: none;
 }
 
-.list-group.red .list-group-item a:hover {
+.list .item-red a:hover {
     color: red;
     text-decoration: none;
 }
 
+/* Text Input Styles */
+
+.input {
+    background-color: black;
+    border-top-width: 0;
+    border-left-width: 0;
+    border-right-width: 0;
+    border-bottom-width: medium;
+    color: white;
+    border-radius: 0;
+}
+
+.input:hover {
+    background-color: #49494a;
+}
+
+.input:focus {
+    background-color: #49494a;
+    color: white;
+    outline: none !important;
+    box-shadow: none !important;
+}
+
+.input::placeholder {
+    color: white;
+}
+
+/* Link Styles */
+
+a {
+    text-decoration: none;
+}
+
+a:visited {
+    color: white;
+}
+
+a:hover {
+    color: green;
+}
+
+/* Card Styles */
+
+.card {
+    background-color: black;
+    color: white;
+    border-color: white;
+    border: 3px solid white; 
+    width: 18rem;
+    transition: transform 0.5s;
+    font-size: 20px;
+    display: flex;
+}
+
+.card h3 {
+    font-size: 35px;
+}
+
+.card:hover {
+    transform: scale(1.1);
+    border: 3px solid white;
+    border-color: green;
+}
+
+
+
 /* Button Styles */
 
-button {
-    font-size: 20px;
-    border-radius: 45px;
-    padding: 10px;
+.button-green {
+    background-color: green;
+    border-color: green;
+    color: white;
+}
+
+.button-green:hover {
+    background-color: black;
+    border-color: green;
+    color: green;
+}
+
+.button-green:focus {
+    background-color: black;
+    border-color: green;
+    color: green;
+    outline: none !important;
+}
+
+.button-red {
+    background-color: red;
+    border-color: red;
+    color: white;
+}
+
+.button-red:hover {
+    background-color: black;
+    border-color: red;
+    color: red;
+    text-decoration: none;
 }
 
 /* Footer Stlyes */
 
 footer {
     background-color: black;
-    color: #FCFFFC;
-    position: fixed;
-    left: 0;
-    bottom: 0;
+    color: white;
+    padding-top: 40px;
     text-align: center;
     width: 100%;
 }
