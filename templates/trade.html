@@ -13,7 +13,7 @@
         <div class="row ps-3">
             {% for stock in stocks %}
             <div class="col-md-2">
-                <a class="card-hover" href="{{ url_for('stockviewer') }}">
+                <a class="card-hover" href="{{ url_for('stockviewer', username=user_information.username, stockname=stock.stock_name) }}">
                     <div class="card">
                         <div class="card-body">
                             <h2>{{ stock.ticker_symbol }}</h2>

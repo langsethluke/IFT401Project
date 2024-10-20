@@ -184,9 +184,12 @@ def trade(username):
     user_information = User.query.filter_by(username=username).first()
     return render_template('trade.html', user_information=user_information, stocks=stocks)
 
-@app.route('/stockviewer')
-def stockviewer():
-    return render_template('stockviewer.html')
+@app.route('/stockviewer/<stockname>/<username>')
+def stockviewer(username, stockname):
+    user_information = User.query.filter_by(username=username).first()
+    stock_information = Stock.query.filter_by(stock_name=stockname).first()
+    print(stock_information)
+    return render_template('stockviewer.html', user_information=user_information, stock_information=stock_information)
 
 @app.route('/portfolio/<username>')
 def portfolio(username):
@@ -259,8 +262,9 @@ def adminstocks(username):
         return redirect(url_for('adminstocks',  username=username))
     return render_template('adminstocks.html', user_information=user_information, createform=createform, stocks=stocks)
 
-@app.route('/adminmarkethours')
-def adminsmarkethours():
-    return render_template('adminmarkethours.html')
+@app.route('/adminmarkethours/<username>')
+def adminmarkethours(username):
+    user_information = User.query.filter_by(username=username).first()
+    return render_template('adminmarkethours.html', user_information=user_information)
 
 if __name__ == "__main__": app.run(debug=True)
