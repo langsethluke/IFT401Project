@@ -1,5 +1,106 @@
 {% extends "index.html" %}
 {% block title %}Portoflio{% endblock %}
 {% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col ps-4">
+            <br>
+            <h1>Portfolio</h1>
+            <br>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-6 ps-4">
+            <h2>Portfolio Value: Value</h2>
+            <br>
+            <h3>Amount in Cash: Value</h3>
+            <h3>Amount in Stocks: Value</h3>
+            <br>
+            <h3>History of Account Value</h3>
+            <canvas id="myChart"></canvas>
+        </div>
+        <div class="col-4 text-center" style="margin-left: 200px">
+            <div>
+                <canvas id="stocks"></canvas>
+            </div>
+            <div class="chart-container">
+                <canvas class="balance"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col ps-4">
+            <h2>Stocks Owned</h2>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        const chartData = {
+            labels: ["Cash", "Stocks"],
+            data: [30, 17,],
+        };
+
+        new Chart(stocks, {
+            type: "doughnut",
+            data: {
+                labels: chartData.labels,
+                datasets: [
+                    {
+                        label: "balance",
+                        data: chartData.data,
+                    }
+                ]
+            },
+            options: {
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                }
+            }
+
+        })
+
+        
+        const ctx = document.getElementById("myChart");
+
+        const chartData2 = {
+            labels: ["9:30am", "10am", "10:30am", "11am", "11:30am", "12pm", "12:30pm", "1pm", "1:30pm", "2pm", "2:30pm", "3pm", "3:30pm", "4pm"],
+            data: [30, 17, 10, 7, 36, 5, 5, 5, 5, 30, 17, 10, 7, 36],
+        };
+
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: chartData2.labels,
+                datasets: [
+                    {
+                        data: chartData2.data,
+                        borderColor: 'green',
+                        backgroundColor: 'rgba(0, 128, 0, 0.13)',
+                        fill: true,
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                interaction: {
+                    intersect: false,
+                },
+                scales: {
+                    y: {
+                        beginAtZero: false,
+                    }
+                }
+            }
+        })
+    </script>
 
 {% endblock %}

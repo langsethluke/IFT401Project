@@ -33,6 +33,21 @@
                 </tbody>
                 </table>
             </div>
+        <div class="row ps-3">
+            {% for stock in stocks %}
+            <div class="col-md-2">
+                <a class="card-hover" href="{{ url_for('stockviewer') }}">
+                    <div class="card">
+                        <div class="card-body">
+                            <h2>{{ stock.ticker_symbol }}</h2>
+                            <p class="pb-4">{{ stock.stock_name }}</p>
+                            <h3 class="pb-4">${{ "{:,.2f}".format(stock.current_market_price) }}</h3>
+                            <h4>Today's Change</h4>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            {% endfor %}
         </div>
     </div>
 </body>

@@ -14,6 +14,7 @@
     </head>
   
     <body>
+    <body class="d-flex flex-column min-vh-100">
         <div class="container-fluid">
             <div class="center position-absolute top-0 start-50 translate-middle-x text-center">
               <img src="static/logo.png/" width="175px"/>
@@ -26,30 +27,38 @@
                     <div class="form-group">
                       <div class="row justify-content-center">
                             {{ form.first_name(class="input form-control w-100", id="firstnameInput", placeholder="First Name") }}
+                    {{ userForm.hidden_tag() }}
+                    <div class="form-group">
+                      <div class="row justify-content-center">
+                            {{ userForm.first_name(class="input form-control w-100", id="firstnameInput", placeholder="First Name") }}
                       </div>
                     </div> 
                 <br>
                     <div class="form-group">
                         <div class="row justify-content-center">
                             {{ form.last_name (class="input form-control w-100", id="lastnameInput", placeholder="Last Name") }}
+                            {{ userForm.last_name (class="input form-control w-100", id="lastnameInput", placeholder="Last Name") }}
                         </div>
                     </div>
                 <br>
                     <div class="form-group">
                         <div class="row justify-content-center">
                             {{ form.username (class="input form-control w-100", id="usernameInput", placeholder="Username") }}
+                            {{ userForm.username (class="input form-control w-100", id="usernameInput", placeholder="Username") }}
                         </div>
                     </div>
                 <br>
                     <div class="form-group">
                         <div class="row justify-content-center">
                             {{ form.email (class="input form-control w-100", id="emailInput", placeholder="Email") }}
+                            {{ userForm.email (class="input form-control w-100", id="emailInput", placeholder="Email") }}
                         </div>
                     </div>
                 <br>
                     <div class="form-group">
                         <div class="row justify-content-center">
                             {{ form.password  (class="input form-control w-100", id="passwordInput", placeholder="Password (Minimum of 8 Characters )", type="password") }}
+                            {{ userForm.password  (class="input form-control w-100", id="passwordInput", placeholder="Password (Minimum of 8 Characters )", type="password") }}
                         </div>
                     </div>
                 <br>
@@ -60,6 +69,11 @@
                     </div>
                 <br>
                    <p>{{ form.submit(class="button-green btn btn-secondary w-50", value="Submit") }}</p>
+                            {{ userForm.confirm (class="input form-control w-100", id="passwordInput", placeholder="Repeat Password", type="password") }}
+                        </div>
+                    </div>
+                <br>
+                   <p>{{ userForm.submit(class="button-green btn btn-secondary w-50", value="Submit") }}</p>
                     <!--<button type="button" class="button-green btn btn-primary" data-bs-toggle="modal" data-bs-target="#Modal">
                         Create Account
                     </button>-->
@@ -68,6 +82,7 @@
               </div>
         </div>
         <footer>
+        <footer class="mt-auto">
             <p>Created by: Luke Langseth, Isaac Petray, Brandon Tubman, and Hari Adapala</p>
         </footer>
 

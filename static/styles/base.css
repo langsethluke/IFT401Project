@@ -120,12 +120,63 @@ a:hover {
     color: green;
 }
 
+/* Card Styles */
+
+.card {
+    background-color: black;
+    color: white;
+    border-color: white;
+    border: 3px solid white; 
+    width: 18rem;
+    transition: transform 0.5s;
+    font-size: 20px;
+    display: flex;
+}
+
+.card h3 {
+    font-size: 35px;
+}
+
+.card:hover {
+    transform: scale(1.1);
+    border: 3px solid white;
+    border-color: green;
+}
+
+
+
 /* Button Styles */
 
 .button-green {
     background-color: green;
     border-color: green;
     color: white;
+}
+
+.button-green:hover {
+    background-color: black;
+    border-color: green;
+    color: green;
+}
+
+.button-green:focus {
+    background-color: black;
+    border-color: green;
+    color: green;
+    outline: none !important;
+}
+
+.button-red {
+    background-color: red;
+    border-color: red;
+    color: white;
+}
+
+.button-red:hover {
+    background-color: black;
+    border-color: red;
+    color: red;
+    text-decoration: none;
 }
 
 .button-green:hover {

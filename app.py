@@ -6,6 +6,14 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, FloatField, IntegerField, SubmitField, PasswordField
 from wtforms.validators import DataRequired, Length, Email, EqualTo
 from flask_login import LoginManager, UserMixin, login_user, login_required
+from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import event
+from flask_wtf import FlaskForm 
+from wtforms import StringField, FloatField, IntegerField, SubmitField, PasswordField, HiddenField
+from wtforms.validators import DataRequired, Length, Email, EqualTo
+from flask_login import LoginManager, UserMixin, login_user, login_required
+from decimal import Decimal
+from sqlalchemy.ext.hybrid import hybrid_property
 
 app = Flask(__name__) 
 
@@ -22,6 +30,7 @@ def load_user(id):
 app.config['SECRET_KEY'] = 'your_secret_key' 
 app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:password@localhost/stock1' 
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False 
+app.config['WTF_CSRF_ENABLED'] = False
 
 db = SQLAlchemy(app)
 
@@ -37,6 +46,39 @@ class User(db.Model, UserMixin):
     password = db.Column(db.String(100), nullable=True)
     admin = db.Column(db.Boolean, default=False)
     
+
+    # Creating the relationship with the Portfolio Table
+    portfolio = db.relationship('Portfolio', back_populates='user', uselist=False)
+
+# Defining the Portfolio Table
+class Portfolio(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    total_balance = db.Column(db.Float(20,2), nullable=False)
+    stock_balance = db.Column(db.Float(20,2), nullable=False)
+    cash_balance = db.Column(db.Float(20,2), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), unique=True, nullable=False)
+
+    # Creating the relationship with the User Table
+    user = db.relationship('User', back_populates='portfolio')
+
+    # Creating the relationship with the Portfolio Transaction Table
+    portfoliotransaction = db.relationship('PortfolioTransaction', back_populates='portfolio', uselist=True)
+
+@event.listens_for(Portfolio, 'before_insert')
+@event.listens_for(Portfolio, 'before_update')
+def update_total_balance(mapper, connection, target):
+        target.total_balance = target.stock_balance + target.cash_balance
+
+# Defining the Portfolio Transaction Table
+class PortfolioTransaction(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    type = db.Column(db.String(8), nullable=False)
+    amount = db.Column(db.Float(10,2), nullable=False)
+    portfolio_id = db.Column(db.Integer, db.ForeignKey('portfolio.id'), nullable=False)
+
+    #Creating the relationship with the Portofolio Table
+    portfolio = db.relationship('Portfolio', back_populates='portfoliotransaction')
+
 # Defining the Stock Table
 class Stock(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -44,6 +86,8 @@ class Stock(db.Model):
     ticker_symbol = db.Column(db.String(4), unique=True, nullable=False)
     starting_market_price = db.Column(db.Float(10,2), nullable=False)
     current_market_price = db.Column(db.Float(10,2), nullable=False)
+    starting_market_price = db.Column(db.Float(20,2), nullable=False)
+    current_market_price = db.Column(db.Float(20,2), nullable=False)
     number_of_total_shares = db.Column(db.Integer, nullable=False)
     number_of_shares_to_purchase = db.Column(db.Integer, nullable=False)
 
@@ -67,6 +111,16 @@ class LoginForm(FlaskForm):
     username = StringField('Username', validators=[DataRequired()])
     password = PasswordField('Password', validators=[DataRequired()])
     submit = SubmitField('Submit')
+
+# Form for Deposit
+class DepositForm(FlaskForm):
+    amount = FloatField('Amount', validators=[DataRequired()])
+    submit = SubmitField('Deposit')
+
+# Form for Withdraw
+class WithdrawForm(FlaskForm):
+    amount = FloatField('Amount', validators=[DataRequired()])
+    submit = SubmitField('Withdraw')
 
 # Form for Creating a Stock
 class StockForm(FlaskForm):
@@ -128,17 +182,42 @@ def trade():
 def stockviewer():
     return render_template('stockviewer.html')
 
-@app.route('/portfolio')
-def portfolio():
-    return render_template('portoflio.html')
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        username = request.form.get("username")
+        password = request.form.get("password")
+
+        user = User.query.filter_by(username=username).first()
 
 @app.route('/transactionhistory')
 def transactionhistory():
     return render_template('transactionhistory.html')
+        if user and user.password == password:
+            login_user(user)
+            return redirect(url_for('home', username=username))
+    return render_template('login.html')
 
-@app.route('/accounttransfer')
-def accounttransfer():
-    return render_template('accounttransfer.html')
+@app.route('/createaccount', methods=["GET", "POST"])
+def createaccount():
+    userForm = UserForm()
+    if userForm.validate_on_submit():
+        new_user = User( 
+                        first_name=userForm.first_name.data, 
+                        last_name=userForm.last_name.data, 
+                        email=userForm.email.data, 
+                        username=userForm.username.data, 
+                        password=userForm.password.data )
+        
+        # Commits the User first so the Portfolio can get a valid User ID
+        db.session.add(new_user)
+        db.session.commit()
+    
+        new_portfolio = Portfolio(
+                        total_balance = 0,
+                        stock_balance = 0,
+                        cash_balance = 0,
+                        user_id = new_user.id )
 
 @app.route('/adminstocks', methods=['GET', 'POST'])
 def adminstocks():
@@ -157,6 +236,103 @@ def adminstocks():
         flash("Stock Created Successfully")
         return redirect(url_for('adminstocks'))
     return render_template('adminstocks.html', createform=createform, stocks=stocks)
+
+        db.session.add(new_portfolio)
+        db.session.commit()
+        flash("Account Created Successfully")
+        return redirect(url_for('login'))
+    return render_template('createaccount.html', userForm=userForm)
+
+@app.route('/accountcanceled')
+def accountcanceled():
+    return render_template('accountcanceled.html')
+
+@app.route('/home/<username>')
+def home(username):
+    user_information = User.query.filter_by(username=username).first()
+    portfolio_information = Portfolio.query.filter_by(user_id=user_information.id).first()
+    return render_template('home.html', user_information=user_information, portfolio=portfolio_information)
+
+@app.route('/trade/<username>')
+def trade(username):
+    stocks = Stock.query.all()
+    user_information = User.query.filter_by(username=username).first()
+    return render_template('trade.html', user_information=user_information, stocks=stocks)
+
+@app.route('/stockviewer')
+def stockviewer():
+    return render_template('stockviewer.html')
+
+@app.route('/portfolio/<username>')
+def portfolio(username):
+    user_information = User.query.filter_by(username=username).first()
+    return render_template('portoflio.html',user_information=user_information)
+
+@app.route('/tradehistory/<username>')
+def tradehistory(username):
+    user_information = User.query.filter_by(username=username).first()
+    return render_template('tradehistory.html', user_information=user_information)
+
+@app.route('/accounttransfer/<username>', methods=['GET', 'POST'])
+def accounttransfer(username):
+    user_information = User.query.filter_by(username=username).first()
+    portfolio_information = Portfolio.query.filter_by(user_id=user_information.id).first()
+    portfolio_transactions =  PortfolioTransaction.query.all()
+
+    depositForm = DepositForm(request.form)
+    withdrawForm = WithdrawForm(request.form)
+
+    if request.method == 'POST':
+        if 'submit' in request.form:
+            if request.form['submit'] == 'Deposit':
+                amount = Decimal(depositForm.amount.data)
+                if depositForm.validate_on_submit():
+                    new_transaction = PortfolioTransaction (
+                            type = "Deposit",
+                            amount = amount,
+                            portfolio_id = portfolio_information.id
+                        )
+                    portfolio_information.cash_balance += amount
+                    db.session.add(new_transaction)
+                    db.session.commit()
+                    return redirect(url_for('accounttransfer', username=username)) 
+            elif request.form['submit'] == 'Withdraw':
+                amount = Decimal(depositForm.amount.data)
+                if withdrawForm.validate_on_submit():
+                    if amount < portfolio_information.cash_balance:
+                        new_transaction = PortfolioTransaction (
+                                type = "Withdraw",
+                                amount = amount,
+                                portfolio_id = portfolio_information.id
+                            )
+                        portfolio_information.cash_balance -= amount
+                        db.session.add(new_transaction)
+                        db.session.commit()
+                        return redirect(url_for('accounttransfer', username=username))
+                    else:
+                        return redirect(url_for('accounttransfer', username=username))
+
+    return render_template('accounttransfer.html', user_information=user_information, portfolio=portfolio_information, depositForm=depositForm, withdrawForm=withdrawForm,  portfolio_transactions= portfolio_transactions)
+
+@app.route('/adminstocks/<username>', methods=['GET', 'POST'])
+def adminstocks(username):
+    user_information = User.query.filter_by(username=username).first()
+    stocks = Stock.query.all()
+
+    createform = StockForm()
+    if createform.validate_on_submit():
+        new_stock = Stock ( stock_name=createform.stock_name.data, 
+                            ticker_symbol=createform.ticker_symbol.data, 
+                            starting_market_price=createform.starting_market_price.data, 
+                            current_market_price=createform.starting_market_price.data, 
+                            number_of_total_shares=createform.number_of_total_shares.data,
+                            number_of_shares_to_purchase=createform.number_of_total_shares.data 
+                            )        
+        db.session.add(new_stock)
+        db.session.commit()
+        flash("Stock Created Successfully")
+        return redirect(url_for('adminstocks',  username=username))
+    return render_template('adminstocks.html', user_information=user_information, createform=createform, stocks=stocks)
 
 @app.route('/adminmarkethours')
 def adminsmarkethours():

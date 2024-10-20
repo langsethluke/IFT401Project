@@ -96,6 +96,7 @@
           <p>{{ createform.submit(class="button-green btn btn-secondary", value="Confirm", onclick="form_submit()") }}</p>
           <!--<button type="submit" class="button-green btn btn-primary">Submit</button>-->
           <a class="button-red btn btn-primary" href="{{ url_for('adminstocks') }}" role="button">Cancel</a>
+          <a class="button-red btn btn-primary" href="{{ url_for('adminstocks', username=user_information.username) }}" role="button">Cancel</a>
         </div>
       </div>
     </div>
