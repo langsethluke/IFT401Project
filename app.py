@@ -1,11 +1,6 @@
 #Importing Flask and MySQL Libraries
 
 from flask import Flask, render_template, redirect, url_for, flash, request
-from flask_sqlalchemy import SQLAlchemy 
-from flask_wtf import FlaskForm 
-from wtforms import StringField, FloatField, IntegerField, SubmitField, PasswordField
-from wtforms.validators import DataRequired, Length, Email, EqualTo
-from flask_login import LoginManager, UserMixin, login_user, login_required
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import event
 from flask_wtf import FlaskForm 
@@ -28,7 +23,7 @@ def load_user(id):
 # Configuration for Connecting to the MySQL Database
 
 app.config['SECRET_KEY'] = 'your_secret_key' 
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:password@localhost/stock1' 
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:904278aa@localhost/stock1' 
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False 
 app.config['WTF_CSRF_ENABLED'] = False
 
@@ -45,7 +40,6 @@ class User(db.Model, UserMixin):
     username = db.Column(db.String(30), unique=True, nullable=False)
     password = db.Column(db.String(100), nullable=True)
     admin = db.Column(db.Boolean, default=False)
-    
 
     # Creating the relationship with the Portfolio Table
     portfolio = db.relationship('Portfolio', back_populates='user', uselist=False)
@@ -84,8 +78,6 @@ class Stock(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     stock_name = db.Column(db.String(30), unique=True, nullable=False)
     ticker_symbol = db.Column(db.String(4), unique=True, nullable=False)
-    starting_market_price = db.Column(db.Float(10,2), nullable=False)
-    current_market_price = db.Column(db.Float(10,2), nullable=False)
     starting_market_price = db.Column(db.Float(20,2), nullable=False)
     current_market_price = db.Column(db.Float(20,2), nullable=False)
     number_of_total_shares = db.Column(db.Integer, nullable=False)
@@ -151,55 +143,6 @@ def login():
 
 @app.route('/createaccount', methods=["GET", "POST"])
 def createaccount():
-    form = UserForm()
-    if form.validate_on_submit():
-        new_user = User( first_name=form.first_name.data, 
-                        last_name=form.last_name.data, 
-                        email=form.email.data, 
-                        username=form.username.data, 
-                        password=form.password.data )
-        db.session.add(new_user)
-        db.session.commit()
-        flash("Account Created Successfully")
-        return redirect(url_for('login'))
-    return render_template('createaccount.html', form=form)
-
-@app.route('/accountcanceled')
-def accountcanceled():
-    return render_template('accountcanceled.html')
-
-@app.route('/home/<username>')
-def home(username):
-    user_information = User.query.filter_by(username=username).first()
-    return render_template('home.html', username=user_information)
-
-@app.route('/trade')
-def trade():
-    stocks = Stock.query.all()
-    return render_template('trade.html', stocks=stocks)
-
-@app.route('/stockviewer')
-def stockviewer():
-    return render_template('stockviewer.html')
-
-@app.route('/login', methods=['GET', 'POST'])
-def login():
-    if request.method == 'POST':
-        username = request.form.get("username")
-        password = request.form.get("password")
-
-        user = User.query.filter_by(username=username).first()
-
-@app.route('/transactionhistory')
-def transactionhistory():
-    return render_template('transactionhistory.html')
-        if user and user.password == password:
-            login_user(user)
-            return redirect(url_for('home', username=username))
-    return render_template('login.html')
-
-@app.route('/createaccount', methods=["GET", "POST"])
-def createaccount():
     userForm = UserForm()
     if userForm.validate_on_submit():
         new_user = User( 
@@ -218,24 +161,6 @@ def createaccount():
                         stock_balance = 0,
                         cash_balance = 0,
                         user_id = new_user.id )
-
-@app.route('/adminstocks', methods=['GET', 'POST'])
-def adminstocks():
-    stocks = Stock.query.all()
-    createform = StockForm()
-    if createform.validate_on_submit():
-        new_stock = Stock ( stock_name=createform.stock_name.data, 
-                            ticker_symbol=createform.ticker_symbol.data, 
-                            starting_market_price=createform.starting_market_price.data, 
-                            current_market_price=createform.starting_market_price.data, 
-                            number_of_total_shares=createform.number_of_total_shares.data,
-                            number_of_shares_to_purchase=createform.number_of_total_shares.data 
-                            )
-        db.session.add(new_stock)
-        db.session.commit()
-        flash("Stock Created Successfully")
-        return redirect(url_for('adminstocks'))
-    return render_template('adminstocks.html', createform=createform, stocks=stocks)
 
         db.session.add(new_portfolio)
         db.session.commit()
@@ -259,9 +184,12 @@ def trade(username):
     user_information = User.query.filter_by(username=username).first()
     return render_template('trade.html', user_information=user_information, stocks=stocks)
 
-@app.route('/stockviewer')
-def stockviewer():
-    return render_template('stockviewer.html')
+@app.route('/stockviewer/<stockname>/<username>')
+def stockviewer(username, stockname):
+    user_information = User.query.filter_by(username=username).first()
+    stock_information = Stock.query.filter_by(stock_name=stockname).first()
+    print(stock_information)
+    return render_template('stockviewer.html', user_information=user_information, stock_information=stock_information)
 
 @app.route('/portfolio/<username>')
 def portfolio(username):
@@ -334,8 +262,9 @@ def adminstocks(username):
         return redirect(url_for('adminstocks',  username=username))
     return render_template('adminstocks.html', user_information=user_information, createform=createform, stocks=stocks)
 
-@app.route('/adminmarkethours')
-def adminsmarkethours():
-    return render_template('adminmarkethours.html')
+@app.route('/adminmarkethours/<username>')
+def adminmarkethours(username):
+    user_information = User.query.filter_by(username=username).first()
+    return render_template('adminmarkethours.html', user_information=user_information)
 
 if __name__ == "__main__": app.run(debug=True)

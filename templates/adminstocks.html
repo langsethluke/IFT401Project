@@ -16,12 +16,6 @@
                 <button type="button" class="button-green btn btn-primary me-3" data-bs-toggle="modal" data-bs-target="#createStockModal">
                     Create a Stock
                 </button>
-                <!--<button type="button" class="button-green btn btn-primary me-3" data-bs-toggle="modal" data-bs-target="#editStockModal">
-                    Edit a Stock
-                </button>
-                <button type="button" class="button-red btn btn-primary me-3" data-bs-toggle="modal" data-bs-target="#deleteStockModal">
-                    Delete a Stock
-                </button>-->
                 <br>
                 <br>
             </div>
@@ -94,49 +88,11 @@
         </div>
         <div class="modal-footer justify-content-center">
           <p>{{ createform.submit(class="button-green btn btn-secondary", value="Confirm", onclick="form_submit()") }}</p>
-          <!--<button type="submit" class="button-green btn btn-primary">Submit</button>-->
-          <a class="button-red btn btn-primary" href="{{ url_for('adminstocks') }}" role="button">Cancel</a>
           <a class="button-red btn btn-primary" href="{{ url_for('adminstocks', username=user_information.username) }}" role="button">Cancel</a>
         </div>
       </div>
     </div>
 </div> 
-
-<!-- Edit a Stock Modal
-<div class="modal fade" id="editStockModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-      <div class="modal-content">
-        <div class="modal-header">
-            <h2>Edit a Stock</h2>
-          <button type="button" class="close btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body text-center">
-        </div>
-        <div class="modal-footer justify-content-center">
-          <button type="button" class="button-green btn btn-secondary" data-bs-dismiss="modal">Confirm</button>
-          <a class="button-red btn btn-primary" href="{{ url_for('adminstocks') }}" role="button">Cancel</a>
-        </div>
-      </div>
-    </div>
-</div> 
-
- Delete a Stock Modal 
-<div class="modal fade" id="deleteStockModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-      <div class="modal-content">
-        <div class="modal-header">
-            <h2>Delete a Stock</h2>
-          <button type="button" class="close btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body text-center">
-        </div>
-        <div class="modal-footer justify-content-center">
-          <button type="button" class="button-green btn btn-secondary" data-bs-dismiss="modal">Confirm</button>
-          <a class="button-red btn btn-primary" href="{{ url_for('adminstocks') }}" role="button">Cancel</a>
-        </div>
-      </div>
-    </div>
-</div> -->
 
 <script type="text/javascript">
   function form_submit() {

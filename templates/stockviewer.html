@@ -2,22 +2,18 @@
 {% block title %}Stock Viewer{% endblock %}
 {% block content %}
 <body>
-    <div class="container-fluid">
-        <div class="row">
-            <div class="col ps-4">
     <div class="container-fluid ps-4">
         <div class="row">
             <div class="col">
                 <br>
-                <h1>Stock Price Name</h1>
-                <h5>Stock Ticker Symbol</h5>
+                <h1>{{ stock_information.stock_name }}</h1>
+                <h5>{{ stock_information.ticker_symbol }}</h5>
                 <br>
             </div>
         </div>
         <div class="row">
-            <div class="col-7 ps-4">
             <div class="col-7">
-                <h2>Current Price: $Price</h2>
+                <h2>Current Price: ${{ "{:,.2f}".format(stock_information.current_market_price) }}</h2>
                 <h3>Today's Change: Display Total Value Change%</h3>
                 <br>
                 <h6>Opening Price: Price</h6>
@@ -68,7 +64,7 @@
         </div>
         <div class="modal-footer justify-content-center">
           <button type="button" class="button-green btn btn-secondary" data-bs-dismiss="modal">Confirm</button>
-          <a class="button-red btn btn-primary" href="{{ url_for('stockviewer') }}" role="button">Cancel</a>
+          <a class="button-red btn btn-primary" href="{{ url_for('stockviewer', username=user_information.username, stockname=stock_information.stock_name) }}" role="button">Cancel</a>
         </div>
       </div>
     </div>
@@ -87,7 +83,7 @@
         </div>
         <div class="modal-footer justify-content-center">
           <button type="button" class="button-green btn btn-secondary" data-bs-dismiss="modal">Confirm</button>
-          <a class="button-red btn btn-primary" href="{{ url_for('stockviewer') }}" role="button">Cancel</a>
+          <a class="button-red btn btn-primary" href="{{ url_for('stockviewer', username=user_information.username, stockname=stock_information.stock_name) }}" role="button">Cancel</a>
         </div>
       </div>
     </div>
@@ -127,7 +123,6 @@
             },
             scales: {
                 y: {
-                    beginAtZero: true
                     beginAtZero: false,
                 }
             }

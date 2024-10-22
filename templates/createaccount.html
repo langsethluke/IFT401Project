@@ -13,7 +13,6 @@
         <link href="/static/styles/modal.css" rel="stylesheet" />
     </head>
   
-    <body>
     <body class="d-flex flex-column min-vh-100">
         <div class="container-fluid">
             <div class="center position-absolute top-0 start-50 translate-middle-x text-center">
@@ -23,10 +22,6 @@
               <h5>All Fields are Required</h5>
               </br> 
                 <form method="POST" action="">
-                    {{ form.hidden_tag() }}
-                    <div class="form-group">
-                      <div class="row justify-content-center">
-                            {{ form.first_name(class="input form-control w-100", id="firstnameInput", placeholder="First Name") }}
                     {{ userForm.hidden_tag() }}
                     <div class="form-group">
                       <div class="row justify-content-center">
@@ -36,39 +31,30 @@
                 <br>
                     <div class="form-group">
                         <div class="row justify-content-center">
-                            {{ form.last_name (class="input form-control w-100", id="lastnameInput", placeholder="Last Name") }}
                             {{ userForm.last_name (class="input form-control w-100", id="lastnameInput", placeholder="Last Name") }}
                         </div>
                     </div>
                 <br>
                     <div class="form-group">
                         <div class="row justify-content-center">
-                            {{ form.username (class="input form-control w-100", id="usernameInput", placeholder="Username") }}
                             {{ userForm.username (class="input form-control w-100", id="usernameInput", placeholder="Username") }}
                         </div>
                     </div>
                 <br>
                     <div class="form-group">
                         <div class="row justify-content-center">
-                            {{ form.email (class="input form-control w-100", id="emailInput", placeholder="Email") }}
                             {{ userForm.email (class="input form-control w-100", id="emailInput", placeholder="Email") }}
                         </div>
                     </div>
                 <br>
                     <div class="form-group">
                         <div class="row justify-content-center">
-                            {{ form.password  (class="input form-control w-100", id="passwordInput", placeholder="Password (Minimum of 8 Characters )", type="password") }}
                             {{ userForm.password  (class="input form-control w-100", id="passwordInput", placeholder="Password (Minimum of 8 Characters )", type="password") }}
                         </div>
                     </div>
                 <br>
                     <div class="form-group">
                         <div class="row justify-content-center">
-                            {{ form.confirm (class="input form-control w-100", id="passwordInput", placeholder="Repeat Password", type="password") }}
-                        </div>
-                    </div>
-                <br>
-                   <p>{{ form.submit(class="button-green btn btn-secondary w-50", value="Submit") }}</p>
                             {{ userForm.confirm (class="input form-control w-100", id="passwordInput", placeholder="Repeat Password", type="password") }}
                         </div>
                     </div>
@@ -81,7 +67,6 @@
                 </form>
               </div>
         </div>
-        <footer>
         <footer class="mt-auto">
             <p>Created by: Luke Langseth, Isaac Petray, Brandon Tubman, and Hari Adapala</p>
         </footer>
@@ -89,24 +74,4 @@
         <!-- Bootstrap JS and dependencies -->
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
     </body>
-
-   <!-- Modal 
-    <div class="modal fade" id="Modal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-          <div class="modal-content">
-            <div class="modal-header">
-              <button type="button" class="close btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body text-center">
-                <h3>Confirm Creation of Account?</h3>
-            </div>
-            <div class="modal-footer justify-content-center">
-              <button type="button" class="button-green btn btn-secondary" data-bs-dismiss="modal">Confirm</button>
-              <p>{{ form.submit(class="button-green btn btn-secondary", value="Confirm") }}</p>
-              <a class="button-red btn btn-primary" href="#" role="button">Cancel</a>
-            </div>
-          </div>
-        </div>
-    </div>-->
 </html>
-

@@ -13,8 +13,43 @@
         <div class="row">
             <div class="col ps-4">
                 <h2>Current Market Hours:</h2>
+                <h3>Market Status: Open or Closed</h3>
+            </div>
+        </div>
+        <br>
+        <div class="row">
+            <div class = "col ps-4">
+                <button type="button" class="button-green btn btn-primary me-3" data-bs-toggle="modal" data-bs-target="#createStockModal">
+                    Edit Market Hours
+                </button>
             </div>
         </div>
     </div>
 </body>
+
+<!-- Edit Market Hours Modal -->
+<div class="modal fade" id="createStockModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+            <h2>Edit Market Hours</h2>
+          <button type="button" class="close btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body text-center">
+            <form method="POST" action="" id="form">
+                <div class="mb-3">
+                  <input type="text" class="input form-control" aria-describedby="emailHelp" placeholder="Open Time">
+                </div>
+                <div class="mb-3">
+                  <input type="text" class="input form-control" placeholder="Closing Time">
+                </div>
+              </form>
+        </div>
+        <div class="modal-footer justify-content-center">
+            <button type="submit" class="button-green btn btn-primary">Submit</button>
+          <a class="button-red btn btn-primary" href="{{ url_for('adminmarkethours', username=user_information.username) }}" role="button">Cancel</a>
+        </div>
+      </div>
+    </div>
+</div> 
 {% endblock %}

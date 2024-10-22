@@ -179,33 +179,6 @@ a:hover {
     text-decoration: none;
 }
 
-.button-green:hover {
-    background-color: black;
-    border-color: green;
-    color: green;
-}
-
-.button-green:focus {
-    background-color: black;
-    border-color: green;
-    color: green;
-    outline: none !important;
-}
-
-.button-red {
-    background-color: red;
-    border-color: red;
-    color: white;
-}
-
-.button-red:hover {
-    background-color: black;
-    border-color: red;
-    color: red;
-    text-decoration: none;
-}
-
-
 /* Footer Stlyes */
 
 footer {

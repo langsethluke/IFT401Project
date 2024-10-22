@@ -12,7 +12,6 @@
         </div>
         <div class="row">
             <div class="col ps-4">
-                <h2>Total Cash Balance:</h2>
                 <h2>Total Cash Balance: ${{ "{:,.2f}".format(portfolio.cash_balance) }}</h2>
             </div>
         </div>
@@ -24,8 +23,6 @@
                 Withdraw
             </button>
         </div>
-    </div>
-</body>
         <br>
         <div class="row">
           <div class="col ps-4">
@@ -104,49 +101,4 @@
     </div>
 </div>
 
-<!-- Deposit Modal -->
-<div class="modal fade" id="depositModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-      <div class="modal-content">
-        <div class="modal-header">
-            <h4>Deposit</h4>
-          <button type="button" class="close btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body text-center">
-            <form method="POST" action="" id="form">
-                <div class="mb-3">
-                  <input type="text" class="input form-control" placeholder="Amount">
-                </div>
-            </form>
-        </div>
-        <div class="modal-footer justify-content-center">
-          <button type="submit" class="button-green btn btn-primary">Deposit</button>
-          <a class="button-red btn btn-primary" href="{{ url_for('accounttransfer') }}" role="button">Cancel</a>
-        </div>
-      </div>
-    </div>
-</div>
-
-<!-- Withdraw Modal -->
-<div class="modal fade" id="withdrawModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-      <div class="modal-content">
-        <div class="modal-header">
-            <h4>Withdraw</h4>
-          <button type="button" class="close btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body text-center">
-            <form method="POST" action="" id="form">
-                <div class="mb-3">
-                  <input type="text" class="input form-control" placeholder="Amount">
-                </div>
-            </form>
-        </div>
-        <div class="modal-footer justify-content-center">
-          <button type="submit" class="button-green btn btn-primary">Withdraw</button>
-          <a class="button-red btn btn-primary" href="{{ url_for('accounttransfer') }}" role="button">Cancel</a>
-        </div>
-      </div>
-    </div>
-</div>
 {% endblock %}
