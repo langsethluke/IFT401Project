@@ -11,10 +11,10 @@
     </div>
     <div class="row">
         <div class="col-6 ps-4">
-            <h2>Portfolio Value: Value</h2>
+            <h2>Portfolio Value: ${{ "{:,.2f}".format(portfolio.total_balance) }}</h2>
             <br>
-            <h3>Amount in Cash: Value</h3>
-            <h3>Amount in Stocks: Value</h3>
+            <h3>Amount in Stocks: ${{ "{:,.2f}".format(portfolio.stock_balance) }}</h3>
+            <h3>Amount in Cash: ${{ "{:,.2f}".format(portfolio.cash_balance) }}</h3>
             <br>
             <h3>History of Account Value</h3>
             <canvas id="myChart"></canvas>

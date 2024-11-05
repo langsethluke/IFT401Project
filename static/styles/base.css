@@ -188,3 +188,12 @@ footer {
     text-align: center;
     width: 100%;
 }
+
+/* Flash Message Styles */
+.error {
+    color: red;
+}
+
+.success {
+    color: green;
+}

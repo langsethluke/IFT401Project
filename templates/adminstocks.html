@@ -24,6 +24,13 @@
             <div class="col ps-4">
                 <h2>List of Current Stocks</h2>
                 </br>
+                {% with messages = get_flashed_messages() %}
+                    {% if messages %}
+                        {% for message in messages %}
+                        <h5 class="success">{{ message }}</h5>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
             </div>
         </div>
         <div class="row">

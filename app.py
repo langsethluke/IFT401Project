@@ -8,7 +8,8 @@ from wtforms import StringField, FloatField, IntegerField, SubmitField, Password
 from wtforms.validators import DataRequired, Length, Email, EqualTo
 from flask_login import LoginManager, UserMixin, login_user, login_required
 from decimal import Decimal
-from sqlalchemy.ext.hybrid import hybrid_property
+import time
+import threading
 
 app = Flask(__name__) 
 
@@ -21,9 +22,8 @@ def load_user(id):
     return db.session.get(User, int(id))
 
 # Configuration for Connecting to the MySQL Database
-
 app.config['SECRET_KEY'] = 'your_secret_key' 
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:904278aa@localhost/stock1' 
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:password@localhost/stock1' 
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False 
 app.config['WTF_CSRF_ENABLED'] = False
 
@@ -44,6 +44,9 @@ class User(db.Model, UserMixin):
     # Creating the relationship with the Portfolio Table
     portfolio = db.relationship('Portfolio', back_populates='user', uselist=False)
 
+    # Creating the relationship with the Portfolio Table
+    stock_portfolio = db.relationship('StockPortfolio', back_populates='user', uselist=True)
+
 # Defining the Portfolio Table
 class Portfolio(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -58,6 +61,7 @@ class Portfolio(db.Model):
     # Creating the relationship with the Portfolio Transaction Table
     portfoliotransaction = db.relationship('PortfolioTransaction', back_populates='portfolio', uselist=True)
 
+# Changes the total_balance column based off when the stock and cash balance columns are changed
 @event.listens_for(Portfolio, 'before_insert')
 @event.listens_for(Portfolio, 'before_update')
 def update_total_balance(mapper, connection, target):
@@ -82,6 +86,75 @@ class Stock(db.Model):
     current_market_price = db.Column(db.Float(20,2), nullable=False)
     number_of_total_shares = db.Column(db.Integer, nullable=False)
     number_of_shares_to_purchase = db.Column(db.Integer, nullable=False)
+    opening_price = db.Column(db.Float, nullable=False)
+    todays_high = db.Column(db.Float, nullable=False)
+    todays_low = db.Column(db.Float, nullable=False)
+    total_market_cap = db.Column(db.Float, nullable=False)
+
+    # Creating the relationship with the StockPortfolio Table
+    stock_portfolio = db.relationship('StockPortfolio', back_populates='stock', uselist=True)
+
+    # Creating the relationship with the StockPriceHistoryDaily Table
+    stock_price_history_daily = db.relationship('StockPriceHistoryDaily', back_populates='stock')
+
+# Changes the total_market_cap column based off when the number_of_total_shares and current_market_price columns are changed
+@event.listens_for(Stock, 'before_insert')
+@event.listens_for(Stock, 'before_update')
+def update_total_balance(mapper, connection, target):
+        target.total_market_cap = target.current_market_price * target.number_of_total_shares
+
+# Defining the Stock Pirce Daily History Table
+class StockPriceHistoryDaily(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    stock_id = db.Column(db.Integer, db.ForeignKey('stock.id'), nullable=False)
+    nine_thirty = db.Column(db.Float)
+    nine_fourty_five = db.Column(db.Float)
+    ten = db.Column(db.Float)
+    ten_fifteen = db.Column(db.Float)
+    ten_thirty = db.Column(db.Float)
+    ten_fourty_five = db.Column(db.Float)
+    eleven = db.Column(db.Float)
+    eleven_fifteen = db.Column(db.Float)
+    eleven_thirty = db.Column(db.Float)
+    eleven_fourty_five = db.Column(db.Float)
+    twelve = db.Column(db.Float)
+    twelve_fifteen = db.Column(db.Float)
+    twelve_thirty = db.Column(db.Float)
+    twelve_fourty_five = db.Column(db.Float)
+    one = db.Column(db.Float)
+    one_fifteen = db.Column(db.Float)
+    one_thirty = db.Column(db.Float)
+    one_fourty_five = db.Column(db.Float)
+    two = db.Column(db.Float)
+    two_fifteen = db.Column(db.Float)
+    two_thirty = db.Column(db.Float)
+    two_fourty_five = db.Column(db.Float)
+    three = db.Column(db.Float)
+    three_fifteen = db.Column(db.Float)
+    three_thirty = db.Column(db.Float)
+    three_fourty_five = db.Column(db.Float)
+    four = db.Column(db.Float)
+    four_fifteen = db.Column(db.Float)
+    four_thirty = db.Column(db.Float)
+
+    # Creating the relationship with the Stock Table
+    stock = db.relationship('Stock', back_populates='stock_price_history_daily')
+
+
+class StockPortfolio(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    type = db.Column(db.String(5), nullable=False)
+    price_per_share = db.Column(db.Float(20,2), nullable=False)
+    number_of_shares = db.Column(db.Integer, nullable=False)
+    total_amount = db.Column(db.Float(20,2), nullable=False)
+    stock_id = db.Column(db.Integer, db.ForeignKey('stock.id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+
+    # Creating the relationship with the Stock Table
+    stock = db.relationship('Stock', back_populates='stock_portfolio')
+
+    # Creating the relationship with the User Table
+    user = db.relationship('User', back_populates='stock_portfolio')
 
 # Creates All Tables in the MySQL Server
 with app.app_context(): db.create_all()
@@ -121,6 +194,75 @@ class StockForm(FlaskForm):
     starting_market_price = FloatField('Starting Price', validators=[DataRequired()])
     number_of_total_shares = IntegerField('Number of Shares', validators=[DataRequired()])
     submit = SubmitField('Submit')
+
+# Form for Buying and Selling a Stock
+class TransactionStockForm(FlaskForm):
+    numOfShares = IntegerField('Number of Shares', validators=[DataRequired()])
+    submit = SubmitField('Buy')
+
+##### Functions #####
+
+# Calculates the Number of Shares Owned by a User for a Specific Stock
+def calculate_shares_owned(user_id, stock_id):
+    stock_portfolio_information = StockPortfolio.query.filter_by(user_id=user_id, stock_id=stock_id).all()
+
+    numOfSharesOwned = 0
+    for stock in stock_portfolio_information:
+        if stock.type == 'Buy':
+            numOfSharesOwned += stock.number_of_shares
+        elif stock.type == 'Sell':
+            numOfSharesOwned -= stock.number_of_shares
+    
+    return numOfSharesOwned
+
+# Changes the Price of the Stocks
+column_names = [
+    'nine_thirty',
+    'nine_forty_five',
+    'ten',
+    'ten_fifteen',
+    'ten_thirty',
+    'ten_forty_five',
+    'eleven',
+    'eleven_fifteen',
+    'eleven_thirty',
+    'eleven_forty_five',
+    'twelve',
+    'twelve_fifteen',
+    'twelve_thirty',
+    'twelve_forty_five',
+    'one',
+    'one_fifteen',
+    'one_thirty',
+    'one_forty_five',
+    'two',
+    'two_fifteen',
+    'two_thirty',
+    'two_forty_five',
+    'three',
+    'three_fifteen',
+    'three_thirty',
+    'three_forty_five',
+    'four',
+    'four_fifteen',
+    'four_thirty'
+]
+
+def stock_price_generate():
+    with app.app_context():
+        while True:
+            stocks = Stock.query.all()
+            print(f"LENGTH IS {len(stocks)}")
+
+            print("updating stocks1")
+
+            for stock in stocks:
+                stock.current_market_price += 1
+                print("updating stocks")
+
+            db.session.commit()
+
+            time.sleep(10)
 
 ###### Routes ######
 
@@ -164,7 +306,6 @@ def createaccount():
 
         db.session.add(new_portfolio)
         db.session.commit()
-        flash("Account Created Successfully")
         return redirect(url_for('login'))
     return render_template('createaccount.html', userForm=userForm)
 
@@ -184,17 +325,81 @@ def trade(username):
     user_information = User.query.filter_by(username=username).first()
     return render_template('trade.html', user_information=user_information, stocks=stocks)
 
-@app.route('/stockviewer/<stockname>/<username>')
+@app.route('/<stockname>/<username>', methods=['GET', 'POST'])
 def stockviewer(username, stockname):
     user_information = User.query.filter_by(username=username).first()
     stock_information = Stock.query.filter_by(stock_name=stockname).first()
-    print(stock_information)
-    return render_template('stockviewer.html', user_information=user_information, stock_information=stock_information)
+    portfolio_information = Portfolio.query.filter_by(user_id=user_information.id).first()
+
+    # Calculating the Number of Shares Owned for the Stock Being Viewed
+    numOfSharesOwned = calculate_shares_owned(user_information.id, stock_information.id)
+
+    stockForm = TransactionStockForm(request.form)
+
+    if request.method == 'POST':
+        if 'submit' in request.form:
+            if request.form['submit'] == 'Buy':
+                numOfShares = stockForm.numOfShares.data
+                total_amount = stock_information.current_market_price * numOfShares
+                if stockForm.validate_on_submit():
+                    if numOfShares > 0:
+                        if total_amount <= portfolio_information.cash_balance:
+                            if numOfShares <= stock_information.number_of_shares_to_purchase:
+                                new_transaction = StockPortfolio (
+                                    type = "Buy",
+                                    price_per_share = stock_information.current_market_price,
+                                    number_of_shares = numOfShares,
+                                    total_amount = total_amount,
+                                    stock_id = stock_information.id,
+                                    user_id = user_information.id
+                                )
+                                portfolio_information.cash_balance -= total_amount
+                                portfolio_information.stock_balance += total_amount
+                                stock_information.number_of_shares_to_purchase -= numOfShares
+                                db.session.add(new_transaction)
+                                db.session.commit()
+                                return redirect(url_for('stockviewer', username=username, stockname=stockname))
+                            else:
+                                flash('Error: Not Enough Shares to Purchase')
+                        else:
+                            flash('Error: Insufficient Funds')
+                            return redirect(url_for('stockviewer', username=username, stockname=stockname))
+                    else:
+                        flash('Error: Please Enter in a Valid Number')
+                        return redirect(url_for('stockviewer', username=username, stockname=stockname))
+            elif request.form['submit'] == 'Sell':
+                numOfShares = stockForm.numOfShares.data
+                total_amount = stock_information.current_market_price * numOfShares
+                if stockForm.validate_on_submit():
+                    if numOfShares > 0:
+                        if numOfShares <= numOfSharesOwned:
+                            new_transaction = StockPortfolio (
+                                type = "Sell",
+                                price_per_share = stock_information.current_market_price,
+                                number_of_shares = numOfShares,
+                                total_amount = total_amount,
+                                stock_id = stock_information.id,
+                                user_id = user_information.id
+                            )
+                            portfolio_information.cash_balance += total_amount
+                            portfolio_information.stock_balance -= total_amount
+                            stock_information.number_of_shares_to_purchase += numOfShares
+                            db.session.add(new_transaction)
+                            db.session.commit()
+                        else:
+                            flash('Error: Insufficient Shares Owned')
+                            return redirect(url_for('stockviewer', username=username, stockname=stockname))
+                    else:
+                            flash('Error: Please Enter in a Valid Number')
+                            return redirect(url_for('stockviewer', username=username, stockname=stockname))
+
+    return render_template('stockviewer.html', user_information=user_information, stock_information=stock_information, portfolio=portfolio_information, stockForm=stockForm, numOfSharesOwned=numOfSharesOwned)
 
 @app.route('/portfolio/<username>')
 def portfolio(username):
     user_information = User.query.filter_by(username=username).first()
-    return render_template('portoflio.html',user_information=user_information)
+    portfolio_information = Portfolio.query.filter_by(user_id=user_information.id).first()
+    return render_template('portoflio.html',user_information=user_information, portfolio=portfolio_information)
 
 @app.route('/tradehistory/<username>')
 def tradehistory(username):
@@ -205,7 +410,7 @@ def tradehistory(username):
 def accounttransfer(username):
     user_information = User.query.filter_by(username=username).first()
     portfolio_information = Portfolio.query.filter_by(user_id=user_information.id).first()
-    portfolio_transactions =  PortfolioTransaction.query.all()
+    portfolio_transactions =  PortfolioTransaction.query.filter_by(portfolio_id=portfolio_information.id)
 
     depositForm = DepositForm(request.form)
     withdrawForm = WithdrawForm(request.form)
@@ -254,7 +459,10 @@ def adminstocks(username):
                             starting_market_price=createform.starting_market_price.data, 
                             current_market_price=createform.starting_market_price.data, 
                             number_of_total_shares=createform.number_of_total_shares.data,
-                            number_of_shares_to_purchase=createform.number_of_total_shares.data 
+                            number_of_shares_to_purchase=createform.number_of_total_shares.data,
+                            opening_price=createform.starting_market_price.data,
+                            todays_high=createform.starting_market_price.data,
+                            todays_low=createform.starting_market_price.data
                             )        
         db.session.add(new_stock)
         db.session.commit()
@@ -267,4 +475,5 @@ def adminmarkethours(username):
     user_information = User.query.filter_by(username=username).first()
     return render_template('adminmarkethours.html', user_information=user_information)
 
-if __name__ == "__main__": app.run(debug=True)
+if __name__ == "__main__":
+    app.run(debug=True)
