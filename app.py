@@ -23,7 +23,7 @@ def load_user(id):
 
 # Configuration for Connecting to the MySQL Database
 app.config['SECRET_KEY'] = 'your_secret_key' 
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:password@localhost/stock1' 
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:@localhost/IFT401' 
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False 
 app.config['WTF_CSRF_ENABLED'] = False
 
@@ -287,6 +287,24 @@ def login():
 def createaccount():
     userForm = UserForm()
     if userForm.validate_on_submit():
+        # Check if the email already exists
+        existing_email = User.query.filter_by(email=userForm.email.data).first()
+        # Check if the username already exists
+        existing_username = User.query.filter_by(username=userForm.username.data).first()
+
+        # Generate the appropriate error message
+        if existing_email and existing_username:
+            flash("Error: An account with this Username and Email already exists", "error")
+        elif existing_email:
+            flash("Error: An account with this Email already exists", "error")
+        elif existing_username:
+            flash("Error: An account with this Username already exists", "error")
+
+        # If any errors were flashed, reload the form
+        if existing_email or existing_username:
+            return render_template('createaccount.html', userForm=userForm)
+
+        # If both checks pass, create the new user
         new_user = User( 
                         first_name=userForm.first_name.data, 
                         last_name=userForm.last_name.data, 
@@ -294,20 +312,24 @@ def createaccount():
                         username=userForm.username.data, 
                         password=userForm.password.data )
         
-        # Commits the User first so the Portfolio can get a valid User ID
+        # Commit the new user to the database
         db.session.add(new_user)
         db.session.commit()
     
+        # Create a portfolio for the new user
         new_portfolio = Portfolio(
-                        total_balance = 0,
-                        stock_balance = 0,
-                        cash_balance = 0,
-                        user_id = new_user.id )
+                        total_balance=0,
+                        stock_balance=0,
+                        cash_balance=0,
+                        user_id=new_user.id)
 
         db.session.add(new_portfolio)
         db.session.commit()
+
         return redirect(url_for('login'))
+    
     return render_template('createaccount.html', userForm=userForm)
+
 
 @app.route('/accountcanceled')
 def accountcanceled():
