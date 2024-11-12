@@ -5,16 +5,16 @@
     <div class="row">
         <div class="col ps-4">
             <br>
-            <h1>Welcome {{ user_information.first_name }}</h1>
+            <h1>{{ message }} {{ user_information.first_name }}</h1>
             <br>
         </div>
     </div>
     <div class="row">
         <div class="col-6 ps-4">
             <h2>Today's Portfolio Value: ${{ "{:,.2f}".format(portfolio.total_balance) }}</h2>
-            <br />
+            <br>
             <h2>Today's Change: Display Total Value Change%</h2>
-            <br />
+            <br>
             <canvas id="myChart"></canvas>
         </div>
         <div class="col-3 text-center">
@@ -48,8 +48,22 @@
         const ctx = document.getElementById("myChart");
 
         const chartData = {
-            labels: ["9:30am", "10am", "10:30am", "11am", "11:30am", "12pm", "12:30pm", "1pm", "1:30pm", "2pm", "2:30pm", "3pm", "3:30pm", "4pm"],
-            data: [30, 17, 10, 7, 36, 5, 5, 5, 5, 30, 17, 10, 7, 36],
+            labels: ["9:30am", "10am", "10:30am", "11:00am", "11:30am", "12:00pm", "12:30pm", "1:00pm", "1:30pm", "2:00pm", "2:30pm", "3:00pm", "3:30pm", "4:00pm"],
+            data: [ "{{ portfolio_value_history.nine_thirty }}",
+                    "{{ portfolio_value_history.ten }}",
+                    "{{ portfolio_value_history.ten_thirty }}",
+                    "{{ portfolio_value_history.eleven }}",
+                    "{{ portfolio_value_history.eleven_thirty }}",
+                    "{{ portfolio_value_history.twelve }}",
+                    "{{ portfolio_value_history.twelve_thirty }}",
+                    "{{ portfolio_value_history.one }}",
+                    "{{ portfolio_value_history.one_thirty }}",
+                    "{{ portfolio_value_history.two }}",
+                    "{{ portfolio_value_history.two_thirty }}",
+                    "{{ portfolio_value_history.three }}",
+                    "{{ portfolio_value_history.three_thirty }}",
+                    "{{ portfolio_value_history.four }}",
+        ],
         };
 
         new Chart(ctx, {

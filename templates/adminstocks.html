@@ -1,4 +1,4 @@
-{% extends "index.html" %}
+{% extends "adminindex.html" %}
 {% block title %}Admin Stock Page{% endblock %}
 
 {% block content %}
@@ -24,30 +24,31 @@
             <div class="col ps-4">
                 <h2>List of Current Stocks</h2>
                 </br>
+                {% with messages = get_flashed_messages() %}
+                    {% if messages %}
+                        {% for message in messages %}
+                        <h5 class="success">{{ message }}</h5>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
             </div>
         </div>
         <div class="row">
           <div class="col ps-4">
-            <table class="table table-dark table-striped">
+            <table class="table table-dark table-striped fs-5">
               <thead>
                 <tr class="text-center">
-                  <th scope="col">Name of Stock</th>
-                  <th scope="col">Ticker Symbol</th>
-                  <th scope="col">Starting Market Price</th>
-                  <th scope="col">Current Market Price</th>
-                  <th scope="col">Number of Total Shares</th>
-                  <th scope="col">Number of Available Shares to Purchase</th>
+                  <th scope="col" class="col-4">Stock</th>
+                  <th scope="col" class="col-4">Current Market Price</th>
+                  <th scope="col" class="col-4">Today's Change</th>
                 </tr>
               </thead>
               <tbody>
                 {% for stock in stocks %}
                 <tr class="text-center">
-                  <th scope="row">{{ stock.stock_name }}</th>
-                  <td>{{ stock.ticker_symbol }}</td>
-                  <td>${{ "{:,.2f}".format(stock.starting_market_price) }}</td>
+                  <th scope="row">{{ stock.stock_name }} ({{ stock.ticker_symbol }})</th>
                   <td>${{ "{:,.2f}".format(stock.current_market_price) }}</td>
-                  <td>{{ "{:,}".format(stock.number_of_total_shares) }}</td>
-                  <td>{{ "{:,}".format(stock.number_of_shares_to_purchase) }}</td>
+                  <td id="percentageValue">{{ stock.precentage_change }}%</td>
                 </tr>
                 {% endfor %}
               </tbody>
@@ -98,5 +99,21 @@
   function form_submit() {
     document.getElementById("form").submit();
    }    
+</script>
+<script>
+  var percentageElements = document.querySelectorAll('#percentageValue');
+
+  percentageElements.forEach(function(percentageElement) {
+
+      var percentageChange = parseFloat(percentageElement.textContent.replace('%', '').trim());
+
+      if (percentageChange > 0) {
+          percentageElement.textContent = "+" + percentageChange.toFixed(2) + "%";
+          percentageElement.style.color = 'green';  
+      } else if (percentageChange < 0) {
+          percentageElement.textContent = percentageChange.toFixed(2) + "%";
+          percentageElement.style.color = 'red';    
+      }
+  });
 </script>
 {% endblock %}

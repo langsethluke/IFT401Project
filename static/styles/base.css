@@ -17,7 +17,6 @@ nav {
 
 /* Navbar Hover Styles*/
 
-
 .navbar .navbar-brand:hover {
     color: green;
 }
@@ -143,8 +142,6 @@ a:hover {
     border-color: green;
 }
 
-
-
 /* Button Styles */
 
 .button-green {
@@ -188,3 +185,16 @@ footer {
     text-align: center;
     width: 100%;
 }
+
+/* Flash Message Styles */
+.error {
+    color: red;
+}
+
+.success {
+    color: green;
+}
+
+/* Table Styles */
+
+

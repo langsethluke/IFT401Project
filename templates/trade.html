@@ -18,8 +18,8 @@
                         <div class="card-body">
                             <h2>{{ stock.ticker_symbol }}</h2>
                             <p class="pb-4">{{ stock.stock_name }}</p>
-                            <h3 class="pb-4">${{ "{:,.2f}".format(stock.current_market_price) }}</h3>
-                            <h4>Today's Change</h4>
+                            <h3 class="pb-4" id="precentageValue">${{ "{:,.2f}".format(stock.current_market_price) }}</h3>
+                            <h4 id="percentageValue">{{ stock.precentage_change }}%</h4>
                         </div>
                     </div>
                 </a>
@@ -28,4 +28,21 @@
         </div>
     </div>
 </body>
+
+<script>
+    var percentageElements = document.querySelectorAll('#percentageValue');
+
+    percentageElements.forEach(function(percentageElement) {
+
+        var percentageChange = parseFloat(percentageElement.textContent.replace('%', '').trim());
+
+        if (percentageChange > 0) {
+            percentageElement.textContent = "+" + percentageChange.toFixed(2) + "%";
+            percentageElement.style.color = 'green';  
+        } else if (percentageChange < 0) {
+            percentageElement.textContent = percentageChange.toFixed(2) + "%";
+            percentageElement.style.color = 'red';    
+        }
+    });
+</script>
 {% endblock %}

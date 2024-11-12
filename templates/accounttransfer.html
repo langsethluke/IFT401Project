@@ -23,23 +23,38 @@
                 Withdraw
             </button>
         </div>
-        <br>
         <div class="row">
           <div class="col ps-4">
-              <table class="table table-dark table-striped">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            <h5 class="{{ category }}">{{ message }}</h5>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+          </div>
+        </div>
+        <div class="row">
+          <div class="col ps-4">
+              <h2>Transaction History</h2>
+          </div>
+      </div>
+        <div class="row">
+          <div class="col ps-4">
+              <table class="table table-dark table-striped fs-5">
                   <thead>
                       <tr class="text-center">
-                      <th scope="col">Type (Deposit or Withdraw)</th>
-                      <th scope="col">Total Amount</th>
-                      <th scop="col">Date of Transaction</th>
+                      <th scope="col" class="col-4">Type</th>
+                      <th scope="col" class="col-4">Total Amount</th>
+                      <th scope="col" class="col-4">Date of Transaction</th>
                       </tr>
                   </thead>
                   <tbody>
                     {% for transaction in portfolio_transactions %}
                       <tr class="text-center">
-                      <th scope="row">{{ transaction.type }}</th>
-                      <td>${{ "{:,.2f}".format(transaction.amount) }}</td>
-                      <td></td>
+                        <th scope="row">{{ transaction.type }}</th>
+                        <td>${{ "{:,.2f}".format(transaction.amount) }}</td>
+                        <td>{{ transaction.date.strftime('%m/%d/%Y') }}</td>
                       </tr>
                     {% endfor %}
                   </tbody>

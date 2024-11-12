@@ -5,18 +5,19 @@
     <div class="row">
         <div class="col ps-4">
             <br>
-            <h1>Portfolio</h1>
+            <h1>{{ user_information.first_name }}'s Portfolio</h1>
             <br>
         </div>
     </div>
     <div class="row">
         <div class="col-6 ps-4">
-            <h2>Portfolio Value: Value</h2>
+            <h2>Portfolio Value: ${{ "{:,.2f}".format(portfolio.total_balance) }}</h2>
             <br>
-            <h3>Amount in Cash: Value</h3>
-            <h3>Amount in Stocks: Value</h3>
+            <h3>Stock Value: ${{ "{:,.2f}".format(portfolio.stock_balance) }}</h3>
+            <h3>Cash Value: ${{ "{:,.2f}".format(portfolio.cash_balance) }}</h3>
             <br>
-            <h3>History of Account Value</h3>
+            <h3>Today's Trend</h3>
+            <br>
             <canvas id="myChart"></canvas>
         </div>
         <div class="col-4 text-center" style="margin-left: 200px">
@@ -31,6 +32,24 @@
     <div class="row">
         <div class="col ps-4">
             <h2>Stocks Owned</h2>
+            <table class="table table-dark table-striped fs-4">
+                <thead>
+                    <tr class="text-center">
+                    <th scope="col" class="col-4">Stock</th>
+                    <th scope="col" class="col-4">Number of Shares</th>
+                    <th scope="col" class="col-4">Total Value</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for stock in stocks_owned_by_user %}
+                        <tr class="text-center">
+                        <th scope="row"><a href="{{ url_for('stockviewer', username=user_information.username, stockname=stock.stock_name) }}">{{ stock.stock_name }}</a></th>
+                        <td>{{ numOfSharesOwned[stock.id] }}</td>
+                        <td>${{ "{:,.2f}".format(numOfSharesOwned[stock.id] * stock.current_market_price) }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
         </div>
     </div>
 </div>
@@ -39,7 +58,7 @@
     <script>
         const chartData = {
             labels: ["Cash", "Stocks"],
-            data: [30, 17,],
+            data: ['{{ "{:,.2f}".format(portfolio.cash_balance) }}', '{{ "{:,.2f}".format(portfolio.stock_balance) }}'],
         };
 
         new Chart(stocks, {
@@ -48,9 +67,12 @@
                 labels: chartData.labels,
                 datasets: [
                     {
-                        label: "balance",
+                        label: "Balance",
                         data: chartData.data,
-                    }
+                        borderColor: "white",
+                        color: "green",
+                        backgroundColor:["green", "#07ad0a"]
+                    },
                 ]
             },
             options: {
@@ -67,8 +89,21 @@
         const ctx = document.getElementById("myChart");
 
         const chartData2 = {
-            labels: ["9:30am", "10am", "10:30am", "11am", "11:30am", "12pm", "12:30pm", "1pm", "1:30pm", "2pm", "2:30pm", "3pm", "3:30pm", "4pm"],
-            data: [30, 17, 10, 7, 36, 5, 5, 5, 5, 30, 17, 10, 7, 36],
+            labels: ["9:30am", "10am", "10:30am", "11:00am", "11:30am", "12:00pm", "12:30pm", "1:00pm", "1:30pm", "2:00pm", "2:30pm", "3:00pm", "3:30pm", "4:00pm"],
+            data: ["{{ portfolio_value_history.nine_thirty }}",
+                    "{{ portfolio_value_history.ten }}",
+                    "{{ portfolio_value_history.ten_thirty }}",
+                    "{{ portfolio_value_history.eleven }}",
+                    "{{ portfolio_value_history.eleven_thirty }}",
+                    "{{ portfolio_value_history.twelve }}",
+                    "{{ portfolio_value_history.twelve_thirty }}",
+                    "{{ portfolio_value_history.one }}",
+                    "{{ portfolio_value_history.one_thirty }}",
+                    "{{ portfolio_value_history.two }}",
+                    "{{ portfolio_value_history.two_thirty }}",
+                    "{{ portfolio_value_history.three }}",
+                    "{{ portfolio_value_history.three_thirty }}",
+                    "{{ portfolio_value_history.four }}",],
         };
 
         new Chart(ctx, {
