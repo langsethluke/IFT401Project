@@ -13,6 +13,8 @@ import random
 from datetime import datetime
 from werkzeug.security import generate_password_hash, check_password_hash
 from zoneinfo import ZoneInfo
+import time
+import threading
 
 app = Flask(__name__)
 
@@ -25,9 +27,8 @@ def load_user(id):
     return db.session.get(User, int(id))
 
 # Configuration for Connecting to the MySQL Database
-
 app.config['SECRET_KEY'] = 'your_secret_key' 
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:password@localhost/stock1' 
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:@localhost/IFT401' 
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False 
 app.config['WTF_CSRF_ENABLED'] = False
 
@@ -158,6 +159,7 @@ def update_precentage_change(mapper, connection, target):
         target.precentage_change = (Decimal(target.current_market_price) - Decimal(target.opening_price))/Decimal(target.opening_price) * 100
 
 # Defining the Stock Price Daily History Table
+# Defining the Stock Pirce Daily History Table
 class StockPriceHistoryDaily(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     stock_id = db.Column(db.Integer, db.ForeignKey('stock.id'), nullable=False)
@@ -175,6 +177,34 @@ class StockPriceHistoryDaily(db.Model):
     three = db.Column(db.Float)
     three_thirty = db.Column(db.Float)
     four = db.Column(db.Float)
+    nine_fourty_five = db.Column(db.Float)
+    ten = db.Column(db.Float)
+    ten_fifteen = db.Column(db.Float)
+    ten_thirty = db.Column(db.Float)
+    ten_fourty_five = db.Column(db.Float)
+    eleven = db.Column(db.Float)
+    eleven_fifteen = db.Column(db.Float)
+    eleven_thirty = db.Column(db.Float)
+    eleven_fourty_five = db.Column(db.Float)
+    twelve = db.Column(db.Float)
+    twelve_fifteen = db.Column(db.Float)
+    twelve_thirty = db.Column(db.Float)
+    twelve_fourty_five = db.Column(db.Float)
+    one = db.Column(db.Float)
+    one_fifteen = db.Column(db.Float)
+    one_thirty = db.Column(db.Float)
+    one_fourty_five = db.Column(db.Float)
+    two = db.Column(db.Float)
+    two_fifteen = db.Column(db.Float)
+    two_thirty = db.Column(db.Float)
+    two_fourty_five = db.Column(db.Float)
+    three = db.Column(db.Float)
+    three_fifteen = db.Column(db.Float)
+    three_thirty = db.Column(db.Float)
+    three_fourty_five = db.Column(db.Float)
+    four = db.Column(db.Float)
+    four_fifteen = db.Column(db.Float)
+    four_thirty = db.Column(db.Float)
 
     # Creating the relationship with the Stock Table
     stock = db.relationship('Stock', back_populates='stock_price_history_daily')
@@ -391,6 +421,55 @@ with app.app_context():
         db.session.commit()
 
 ####################
+# Changes the Price of the Stocks
+column_names = [
+    'nine_thirty',
+    'nine_forty_five',
+    'ten',
+    'ten_fifteen',
+    'ten_thirty',
+    'ten_forty_five',
+    'eleven',
+    'eleven_fifteen',
+    'eleven_thirty',
+    'eleven_forty_five',
+    'twelve',
+    'twelve_fifteen',
+    'twelve_thirty',
+    'twelve_forty_five',
+    'one',
+    'one_fifteen',
+    'one_thirty',
+    'one_forty_five',
+    'two',
+    'two_fifteen',
+    'two_thirty',
+    'two_forty_five',
+    'three',
+    'three_fifteen',
+    'three_thirty',
+    'three_forty_five',
+    'four',
+    'four_fifteen',
+    'four_thirty'
+]
+
+def stock_price_generate():
+    with app.app_context():
+        while True:
+            stocks = Stock.query.all()
+            print(f"LENGTH IS {len(stocks)}")
+
+            print("updating stocks1")
+
+            for stock in stocks:
+                stock.current_market_price += 1
+                print("updating stocks")
+
+            db.session.commit()
+
+            time.sleep(10)
+
 ###### Routes ######
 ####################
 
@@ -425,6 +504,24 @@ def createaccount():
         hashed_password = generate_password_hash(userForm.password.data)
 
         # Creates New User
+        # Check if the email already exists
+        existing_email = User.query.filter_by(email=userForm.email.data).first()
+        # Check if the username already exists
+        existing_username = User.query.filter_by(username=userForm.username.data).first()
+
+        # Generate the appropriate error message
+        if existing_email and existing_username:
+            flash("Error: An account with this Username and Email already exists", "error")
+        elif existing_email:
+            flash("Error: An account with this Email already exists", "error")
+        elif existing_username:
+            flash("Error: An account with this Username already exists", "error")
+
+        # If any errors were flashed, reload the form
+        if existing_email or existing_username:
+            return render_template('createaccount.html', userForm=userForm)
+
+        # If both checks pass, create the new user
         new_user = User( 
                         first_name=userForm.first_name.data, 
                         last_name=userForm.last_name.data, 
@@ -432,16 +529,18 @@ def createaccount():
                         username=userForm.username.data, 
                         password=hashed_password )
         
-        # Commits the User first so the Portfolio can get a valid User ID
+        # Commit the new user to the database
         db.session.add(new_user)
         db.session.commit()
 
         # Creates a Portfolio for the user
+    
+        # Create a portfolio for the new user
         new_portfolio = Portfolio(
-                        total_balance = 0,
-                        stock_balance = 0,
-                        cash_balance = 0,
-                        user_id = new_user.id )
+                        total_balance=0,
+                        stock_balance=0,
+                        cash_balance=0,
+                        user_id=new_user.id)
 
         db.session.add(new_portfolio)
         db.session.commit()
@@ -455,6 +554,7 @@ def createaccount():
 
         # Redirects to the login so the user can login
         return redirect(url_for('login'))
+    
     return render_template('createaccount.html', userForm=userForm)
 
 # Canceled Page for User accounts that are canceled in the creation process
@@ -533,6 +633,15 @@ def stockviewer(username, stockname):
                             flash('Error: Insufficient Funds', 'error')
                     else:
                         flash('Error: Please Enter in a Valid Number', 'error')
+                                return redirect(url_for('stockviewer', username=username, stockname=stockname))
+                            else:
+                                flash('Error: Not Enough Shares to Purchase')
+                        else:
+                            flash('Error: Insufficient Funds')
+                            return redirect(url_for('stockviewer', username=username, stockname=stockname))
+                    else:
+                        flash('Error: Please Enter in a Valid Number')
+                        return redirect(url_for('stockviewer', username=username, stockname=stockname))
             elif request.form['submit'] == 'Sell':
                 numOfShares = stockForm.numOfShares.data
                 total_amount = stock_information.current_market_price * numOfShares
@@ -560,6 +669,14 @@ def stockviewer(username, stockname):
                         flash('Error: Please Enter in a Valid Number', 'error')
 
     return render_template('stockviewer.html', user_information=user_information, stock_information=stock_information, portfolio=portfolio_information, stockForm=stockForm, numOfSharesOwned=numOfSharesOwned, stock_price_history_information=stock_price_history_information)
+                        else:
+                            flash('Error: Insufficient Shares Owned')
+                            return redirect(url_for('stockviewer', username=username, stockname=stockname))
+                    else:
+                            flash('Error: Please Enter in a Valid Number')
+                            return redirect(url_for('stockviewer', username=username, stockname=stockname))
+
+    return render_template('stockviewer.html', user_information=user_information, stock_information=stock_information, portfolio=portfolio_information, stockForm=stockForm, numOfSharesOwned=numOfSharesOwned)
 
 @app.route('/portfolio/<username>')
 def portfolio(username):
@@ -576,6 +693,7 @@ def portfolio(username):
                             if numOfSharesOwned[stock.id] > 0]
 
     return render_template('portoflio.html',user_information=user_information, portfolio=portfolio_information, stock_information = stock_information, numOfSharesOwned = numOfSharesOwned, stocks_owned_by_user=stocks_owned_by_user, portfolio_value_history = portfolio_value_history)
+    return render_template('portoflio.html',user_information=user_information, portfolio=portfolio_information)
 
 @app.route('/tradehistory/<username>')
 def tradehistory(username):
@@ -643,6 +761,7 @@ def adminstocks(username):
                             todays_low=createform.starting_market_price.data
                             )
 
+                            )        
         db.session.add(new_stock)
         db.session.commit()
 
