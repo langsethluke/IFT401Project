@@ -45,10 +45,6 @@
                     {% if messages %}
                         {% for category, message in messages %}
                             <h5 class="{{ category }}">{{ message }}</h5>
-                {% with messages = get_flashed_messages() %}
-                    {% if messages %}
-                        {% for message in messages %}
-                        <h5 class="error">{{ message }}</h5>
                         {% endfor %}
                     {% endif %}
                 {% endwith %}
@@ -82,8 +78,6 @@
                 "{{ stock_price_history_information.three_thirty }}", 
                 "{{ stock_price_history_information.four }}", 
         ],
-        labels: ["9:30am", "10am", "10:30am", "11am", "11:30am", "12pm", "12:30pm", "1pm", "1:30pm", "2pm", "2:30pm", "3pm", "3:30pm", "4pm"],
-        data: ["{{ stock_information.current_market_price}}",],
     };
 
     new Chart(ctx, {
