@@ -4,7 +4,7 @@ from flask import Flask, render_template, redirect, url_for, flash, request
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import event
 from flask_wtf import FlaskForm 
-from wtforms import StringField, FloatField, IntegerField, SubmitField, PasswordField, HiddenField
+from wtforms import StringField, FloatField, IntegerField, SubmitField, PasswordField, TimeField, HiddenField
 from wtforms.validators import DataRequired, Length, Email, EqualTo
 from flask_login import LoginManager, UserMixin, login_user, login_required
 from decimal import Decimal
@@ -27,7 +27,7 @@ def load_user(id):
 # Configuration for Connecting to the MySQL Database
 
 app.config['SECRET_KEY'] = 'your_secret_key' 
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:password@localhost/stock1' 
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:KcnE9592@localhost/myflaskdb' 
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False 
 app.config['WTF_CSRF_ENABLED'] = False
 
@@ -196,6 +196,12 @@ class StockPortfolio(db.Model):
     # Creating the relationship with the User Table
     user = db.relationship('User', back_populates='stock_portfolio')
 
+class MarketHour(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    open_time = db.Column(db.Time, nullable=False)  # Market open time
+    close_time = db.Column(db.Time, nullable=False)  # Market close time
+    is_open = db.Column(db.Boolean, default=True)  # Market status (open or closed)
+
 # Creates All Tables in the MySQL Server
 with app.app_context(): db.create_all()
 
@@ -241,6 +247,11 @@ class StockForm(FlaskForm):
 class TransactionStockForm(FlaskForm):
     numOfShares = IntegerField('Number of Shares', validators=[DataRequired()])
     submit = SubmitField('Buy')
+
+class MarketHourForm(FlaskForm):
+    open_time = TimeField('Market Open Time', validators=[DataRequired()])
+    close_time = TimeField('Market Close Time', validators=[DataRequired()])
+    submit = SubmitField('Set Market Hours')
 
 #####################
 ##### Functions #####
@@ -378,6 +389,14 @@ def scheduled_task():
 def scheduled_task_2():
     portfolio_value_history()
 
+def is_market_open():
+    market_hours = MarketHour.query.first()
+    if market_hours:
+        current_time = datetime.now().time()
+        if market_hours.open_time <= current_time <= market_hours.close_time:
+            return True
+    return False
+
 #################################
 ###### Creating Admin User ######
 #################################
@@ -489,7 +508,8 @@ def adminhome(username):
 def trade(username):
     stocks = Stock.query.all()
     user_information = User.query.filter_by(username=username).first()
-    return render_template('trade.html', user_information=user_information, stocks=stocks)
+    market_hours = MarketHour.query.first()
+    return render_template('trade.html', user_information=user_information, stocks=stocks, market_hours=market_hours)
 
 @app.route('/<stockname>/<username>', methods=['GET', 'POST'])
 def stockviewer(username, stockname):
@@ -503,63 +523,68 @@ def stockviewer(username, stockname):
 
     stockForm = TransactionStockForm(request.form)
 
+    market_hours = MarketHour.query.first()
+
+    current_time = datetime.now().time()
+    market_open = market_hours.open_time <= current_time <= market_hours.close_time
+
     if request.method == 'POST':
         if 'submit' in request.form:
-            if request.form['submit'] == 'Buy':
-                numOfShares = stockForm.numOfShares.data
-                total_amount = stock_information.current_market_price * numOfShares
-                if stockForm.validate_on_submit():
-                    if numOfShares > 0:
-                        if total_amount <= portfolio_information.cash_balance:
-                            if numOfShares <= stock_information.number_of_shares_to_purchase:
+                if request.form['submit'] == 'Buy':
+                    numOfShares = stockForm.numOfShares.data
+                    total_amount = stock_information.current_market_price * numOfShares
+                    if stockForm.validate_on_submit():
+                        if numOfShares > 0:
+                            if total_amount <= portfolio_information.cash_balance:
+                                if numOfShares <= stock_information.number_of_shares_to_purchase:
+                                    new_transaction = StockPortfolio (
+                                        type = "Buy",
+                                        price_per_share = stock_information.current_market_price,
+                                        number_of_shares = numOfShares,
+                                        total_amount = total_amount,
+                                        stock_id = stock_information.id,
+                                        user_id = user_information.id
+                                    )
+                                    portfolio_information.cash_balance -= total_amount
+                                    portfolio_information.stock_balance += total_amount
+                                    stock_information.number_of_shares_to_purchase -= numOfShares
+                                    db.session.add(new_transaction)
+                                    db.session.commit()
+                                    flash('Purchase Order has Been Fulfilled', 'success')
+                                    return redirect(url_for('stockviewer', username=username, stockname=stockname))
+                                else:
+                                    flash('Error: Not Enough Shares to Purchase', 'error')
+                            else:
+                                flash('Error: Insufficient Funds', 'error')
+                        else:
+                            flash('Error: Please Enter in a Valid Number', 'error')
+                elif request.form['submit'] == 'Sell':
+                    numOfShares = stockForm.numOfShares.data
+                    total_amount = stock_information.current_market_price * numOfShares
+                    if stockForm.validate_on_submit():
+                        if numOfShares > 0:
+                            if numOfShares <= numOfSharesOwned:
                                 new_transaction = StockPortfolio (
-                                    type = "Buy",
+                                    type = "Sell",
                                     price_per_share = stock_information.current_market_price,
                                     number_of_shares = numOfShares,
                                     total_amount = total_amount,
                                     stock_id = stock_information.id,
                                     user_id = user_information.id
                                 )
-                                portfolio_information.cash_balance -= total_amount
-                                portfolio_information.stock_balance += total_amount
-                                stock_information.number_of_shares_to_purchase -= numOfShares
+                                portfolio_information.cash_balance += total_amount
+                                portfolio_information.stock_balance -= total_amount
+                                stock_information.number_of_shares_to_purchase += numOfShares
                                 db.session.add(new_transaction)
                                 db.session.commit()
                                 flash('Purchase Order has Been Fulfilled', 'success')
                                 return redirect(url_for('stockviewer', username=username, stockname=stockname))
                             else:
-                                flash('Error: Not Enough Shares to Purchase', 'error')
+                                flash('Error: Insufficient Shares Owned', 'error')
                         else:
-                            flash('Error: Insufficient Funds', 'error')
-                    else:
-                        flash('Error: Please Enter in a Valid Number', 'error')
-            elif request.form['submit'] == 'Sell':
-                numOfShares = stockForm.numOfShares.data
-                total_amount = stock_information.current_market_price * numOfShares
-                if stockForm.validate_on_submit():
-                    if numOfShares > 0:
-                        if numOfShares <= numOfSharesOwned:
-                            new_transaction = StockPortfolio (
-                                type = "Sell",
-                                price_per_share = stock_information.current_market_price,
-                                number_of_shares = numOfShares,
-                                total_amount = total_amount,
-                                stock_id = stock_information.id,
-                                user_id = user_information.id
-                            )
-                            portfolio_information.cash_balance += total_amount
-                            portfolio_information.stock_balance -= total_amount
-                            stock_information.number_of_shares_to_purchase += numOfShares
-                            db.session.add(new_transaction)
-                            db.session.commit()
-                            flash('Purchase Order has Been Fulfilled', 'success')
-                            return redirect(url_for('stockviewer', username=username, stockname=stockname))
-                        else:
-                            flash('Error: Insufficient Shares Owned', 'error')
-                    else:
-                        flash('Error: Please Enter in a Valid Number', 'error')
+                            flash('Error: Please Enter in a Valid Number', 'error')
 
-    return render_template('stockviewer.html', user_information=user_information, stock_information=stock_information, portfolio=portfolio_information, stockForm=stockForm, numOfSharesOwned=numOfSharesOwned, stock_price_history_information=stock_price_history_information)
+    return render_template('stockviewer.html', user_information=user_information, stock_information=stock_information, portfolio=portfolio_information, stockForm=stockForm, numOfSharesOwned=numOfSharesOwned, stock_price_history_information=stock_price_history_information, market_open=market_open)
 
 @app.route('/portfolio/<username>')
 def portfolio(username):
@@ -657,10 +682,28 @@ def adminstocks(username):
         return redirect(url_for('adminstocks',  username=username))
     return render_template('adminstocks.html', user_information=user_information, createform=createform, stocks=stocks)
 
-@app.route('/adminmarkethours/<username>')
+@app.route('/adminmarkethours/<username>', methods=['GET', 'POST'])
 def adminmarkethours(username):
     user_information = User.query.filter_by(username=username).first()
-    return render_template('adminmarkethours.html', user_information=user_information)
+    market_hours = MarketHour.query.first()
+
+    form = MarketHourForm()
+    if form.validate_on_submit():
+        open_time = form.open_time.data
+        close_time = form.close_time.data
+
+        if market_hours:
+            market_hours.open_time = open_time
+            market_hours.close_time = close_time
+        else:
+            market_hours = MarketHour(open_time=open_time, close_time=close_time)
+            db.session.add(market_hours)
+
+        db.session.commit()
+        flash("Market hours updated successfully", "success")
+        return redirect(url_for('adminmarkethours', username=username))
+
+    return render_template('adminmarkethours.html', user_information=user_information, form=form, market_hours=market_hours)                      
 
 if __name__ == "__main__":
     app.run(debug=True)

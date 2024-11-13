@@ -29,8 +29,13 @@
                 <h4 id="shares">Number of Shares Available to Purchase: {{ stock_information.number_of_shares_to_purchase }}</h4>
                 <br>
                 <br>
-                <button id="buy" type="button" class="button-green btn btn-secondary me-3" style="width:85px">Buy</button>
-                <button id="sell" type="button" class="button-red btn btn-secondary" style="width:85px">Sell</button>
+                {% if market_open %}
+                    <button id="buy" type="submit" name="submit" value="Buy" class="button-green btn btn-secondary me-3" style="width:85px">Buy</button>
+                    <button id="sell" type="submit" name="submit" value="Sell" class="button-red btn btn-secondary" style="width:85px">Sell</button>
+                {% else %}
+                    <button id= "buy" type="submit" name="submit" value="Buy" class="button-green btn btn-secondary me-3" style="width:85px" disabled>Buy (Market Closed)</button>
+                    <button id="sell" type="submit" name="submit" value="Sell" class="button-red btn btn-secondary" style="width:85px" disabled>Sell (Market Closed)</button>
+                {% endif %}
                 <br>
                 <br>
                 <br>
