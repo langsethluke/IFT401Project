@@ -20,30 +20,57 @@
         <div class="col-3 text-center">
             <h3>Top Performers</h3>
             <br />
-            <ul class="list list-group top">
-                <li class="item item-green list-group-item"><a href="#">AAPL 2.5%</a></li>
-                <li class="item item-green list-group-item"><a href="#">F 3.5%</a></li>
-                <li class="item item-green list-group-item"><a href="#">Stock 3 Name: Change%</a></li>
-                <li class="item item-green list-group-item"><a href="#">Stock 4 Name: Change%</a></li>
-                <li class="item item-green list-group-item"><a href="#">Stock 5 Name: Change%</a></li>
+            <ul class="list list-group top" id="top-performers">
+                <!-- JavaScript adds ul items here -->
             </ul>
         </div>
         <div class="col-3 text-center">
         <h3>Low Performers</h3>
         <br />
-        <ul class="list list-group low">
-            <li class="item item-red list-group-item"><a href="#">F 3.5%</a></li>
-            <li class="item item-red list-group-item"><a href="#">Stock 2 Name: Change%</a></li>
-            <li class="item item-red list-group-item"><a href="#">Stock 3 Name: Change%</a></li>
-            <li class="item item-red list-group-item"><a href="#">Stock 4 Name: Change%</a></li>
-            <li class="item item-red list-group-item"><a href="#">Stock 5 Name: Change%</a></li>
+        <ul class="list list-group low" id="low-performers">
+            <!-- JavaScript adds ul items here -->
         </ul>
         </div>
     </div> 
 </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+            fetch('/api/stocks')
+                .then(response => response.json())
+                .then(data => {
+                    const topPerformers = data.top_performers;
+                    const lowPerformers = data.low_performers;
+
+                    const topList = document.getElementById('top-performers');
+                    topPerformers.forEach(stock => {
+                        const li = document.createElement('li');
+                        if (stock.percentage < 0) {
+                            li.classList.add('item', 'item-red', 'list-group-item');
+                        } else {
+                            li.classList.add('item', 'item-green', 'list-group-item');
+                        }
+                        li.id = stock.id;
+                        li.innerHTML = `<a href="#">${stock.ticker} ${stock.percentage}%</a>`;
+                        topList.appendChild(li);
+                    });
+
+                    const lowList = document.getElementById('low-performers');
+                    lowPerformers.forEach(stock => {
+                        const li = document.createElement('li');
+                        if (stock.percentage < 0) {
+                            li.classList.add('item', 'item-red', 'list-group-item');
+                        } else {
+                            li.classList.add('item', 'item-green', 'list-group-item');
+                        }
+                        li.id = stock.id;
+                        li.innerHTML = `<a href="#">${stock.ticker} ${stock.percentage}%</a>`;
+                        lowList.appendChild(li);
+                    });
+                })
+                .catch(err => console.log('Error fetching stock data: ', err));
+        });
 
         const ctx = document.getElementById("myChart");
 

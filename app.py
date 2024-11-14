@@ -1,6 +1,6 @@
 #Importing Flask and MySQL Libraries
 
-from flask import Flask, render_template, redirect, url_for, flash, request
+from flask import Flask, render_template, redirect, url_for, flash, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import event
 from flask_wtf import FlaskForm 
@@ -27,7 +27,7 @@ def load_user(id):
 # Configuration for Connecting to the MySQL Database
 
 app.config['SECRET_KEY'] = 'your_secret_key' 
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:KcnE9592@localhost/myflaskdb' 
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:904278aa@localhost/stock2' 
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False 
 app.config['WTF_CSRF_ENABLED'] = False
 
@@ -703,7 +703,23 @@ def adminmarkethours(username):
         flash("Market hours updated successfully", "success")
         return redirect(url_for('adminmarkethours', username=username))
 
-    return render_template('adminmarkethours.html', user_information=user_information, form=form, market_hours=market_hours)                      
+    return render_template('adminmarkethours.html', user_information=user_information, form=form, market_hours=market_hours) 
+
+@app.route('/api/stocks')
+def get_stocks():
+    stocks = Stock.query.all()
+    stock_data = [{"id": f"stock-{stock.id}", "ticker": stock.ticker_symbol, "percentage": stock.precentage_change} for stock in stocks] 
+
+    sorted_stocks = sorted(stock_data, key=lambda x: x['percentage'], reverse=True)
+
+    top_performers = sorted_stocks[:5]
+
+    low_performers = sorted_stocks[-5:]
+
+    return jsonify({
+        'top_performers': top_performers,
+        'low_performers': low_performers
+    })                    
 
 if __name__ == "__main__":
     app.run(debug=True)
