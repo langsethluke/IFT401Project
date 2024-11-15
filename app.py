@@ -27,7 +27,7 @@ def load_user(id):
 # Configuration for Connecting to the MySQL Database
 
 app.config['SECRET_KEY'] = 'your_secret_key' 
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:904278aa@localhost/stock2' 
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:KcnE9592@localhost/myflaskdb' 
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False 
 app.config['WTF_CSRF_ENABLED'] = False
 
