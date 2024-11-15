@@ -1,6 +1,33 @@
 {% extends "index.html" %} 
 {% block title %}Home{% endblock %} 
 {% block content%}
+<style> 
+    .list-group .item-red a {
+        color: red;
+    }
+
+    .list-group .item-green a {
+        color: green;
+    }
+
+    .list .item-green a:hover {
+        transform: scale(1.1);
+        background-color: #333333;
+        border-radius: 8px;
+        padding-right: 1.5em;
+        text-decoration: none;
+        transition: transform 0.5s
+    }
+
+    .list .item-red a:hover {
+        transform: scale(1.1);
+        background-color: #333333;
+        border-radius: 8px;
+        padding-right: 1.5em;
+        text-decoration: none;
+        transition: transform 0.5s
+    }
+</style>
 <div class="container-fluid">
     <div class="row">
         <div class="col ps-4">
