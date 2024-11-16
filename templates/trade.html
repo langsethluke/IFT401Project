@@ -7,20 +7,22 @@
             <div class="col ps-4">
                 <br>
                 <h1>Trade</h1>
-                <h2>Today's Market Hours: {{ market_hours.open_time }} - {{ market_hours.close_time }} </h2>
+                <br>
+                <h2>Today's Market Hours: <span class="time">{{ market_hours.open_time }}</span> - <span class="time">{{ market_hours.close_time }}</span></h2>
+                <h3>Market Status: <span id="marketStatus" style="color: green">{% if market_status %} Open {% else %} Closed {% endif %}</h3>
                 <br>
             </div> 
         </div>
-        <div class="row ps-3">
+        <div class="row ps-3 row-cols-xl-auto">
             {% for stock in stocks %}
-            <div class="col-md-2">
+            <div class="col">
                 <a class="card-hover" href="{{ url_for('stockviewer', username=user_information.username, stockname=stock.stock_name) }}">
                     <div class="card">
                         <div class="card-body">
                             <h2>{{ stock.ticker_symbol }}</h2>
                             <p class="pb-4">{{ stock.stock_name }}</p>
-                            <h3 class="pb-4" id="precentageValue">${{ "{:,.2f}".format(stock.current_market_price) }}</h3>
-                            <h4 id="percentageValue">{{ stock.precentage_change }}%</h4>
+                            <h3 class="pb-4" id="price-{{ stock.id }}" hx-get="/get_stock_price/{{ stock.id }}" hx-trigger="load, every 5s" hx-target="#price-{{ stock.id }}"></h3>
+                            <h4 id="percentage-{{ stock.id }}" hx-get="/get_percentage_change/{{ stock.id }}" hx-trigger="load, every 5s" hx-target="#percentage-{{ stock.id }}"></h4>
                         </div>
                     </div>
                 </a>
@@ -31,19 +33,50 @@
 </body>
 
 <script>
-    var percentageElements = document.querySelectorAll('#percentageValue');
+    // Changes the color of the Market Status based on if it is open or closed
+    marketStatusTag = document.getElementById('marketStatus')
 
-    percentageElements.forEach(function(percentageElement) {
+    marketStatus = document.getElementById('marketStatus').textContent.trim()
 
-        var percentageChange = parseFloat(percentageElement.textContent.replace('%', '').trim());
+    if (marketStatus === 'Open') {
+    marketStatusTag.style.color = 'green'
+    } else if (marketStatus === 'Closed') {
+    marketStatusTag.style.color = 'red'
+    }
 
-        if (percentageChange > 0) {
-            percentageElement.textContent = "+" + percentageChange.toFixed(2) + "%";
-            percentageElement.style.color = 'green';  
-        } else if (percentageChange < 0) {
-            percentageElement.textContent = percentageChange.toFixed(2) + "%";
-            percentageElement.style.color = 'red';    
-        }
-    });
+    allTimes = document.getElementsByClassName("time");
+
+    for (let i = 0; i < allTimes.length; i++) {
+    time = allTimes[i].textContent.trim();
+
+    if (!time || time == "None") {
+      console.log("test")
+      document.getElementsByClassName("time")[i].textContent = "Closed"
+    } else if (time != "None") {
+      timeSplit = time.split(':');
+
+      hours = timeSplit[0];
+      minutes = timeSplit[1];
+
+      console.log(minutes)
+
+      var newTime
+
+      if (hours > 0 && hours <= 12) {
+        hours = hours.replace(0, "")
+        newTime = "" + hours;
+      } else if (hours > 12) {
+        newTime = "" + (hours - 12);
+      } else if (hours == 0) {
+        newTime = "12";
+      }
+  
+      newTime += ":" + minutes;
+
+      newTime += (hours >= 12) ? "pm" : "am";
+
+      document.getElementsByClassName("time")[i].textContent = newTime
+    }
+  }  
 </script>
 {% endblock %}

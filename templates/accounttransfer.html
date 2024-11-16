@@ -11,8 +11,6 @@
                 <br>
             </div>
         </div>
-
-        <!-- Flash Messages -->
         <div class="row">
             <div class="col ps-4">
                 {% with messages = get_flashed_messages(with_categories=true) %}
@@ -29,8 +27,6 @@
                 {% endwith %}
             </div>
         </div>
-
-        <!-- Deposit and Withdraw Buttons -->
         <div class="row ps-4">
             <button type="button" class="button-green btn btn-primary mt-3 me-3 pt-3 pb-3" style="width: 90px" data-bs-toggle="modal" data-bs-target="#depositModal">
                 Deposit
@@ -39,83 +35,83 @@
                 Withdraw
             </button>
         </div>
-
-        <!-- Transaction History -->
         <div class="row">
-            <div class="col ps-4">
-                <h2>Transaction History</h2>
-            </div>
-        </div>
+          <div class="col ps-4">
+              <br>
+              <h2>Transaction History</h2>
+          </div>
+      </div>
         <div class="row">
-            <div class="col ps-4">
-                <table class="table table-dark table-striped fs-5">
-                    <thead>
-                        <tr class="text-center">
-                            <th scope="col" class="col-4">Type</th>
-                            <th scope="col" class="col-4">Total Amount</th>
-                            <th scope="col" class="col-4">Date of Transaction</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for transaction in portfolio_transactions %}
-                        <tr class="text-center">
-                            <th scope="row">{{ transaction.type }}</th>
-                            <td>${{ "{:,.2f}".format(transaction.amount) }}</td>
-                            <td>{{ transaction.date.strftime('%m/%d/%Y') }}</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-
-    <!-- Deposit Modal -->
-    <div class="modal fade" id="depositModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h4>Deposit</h4>
-                    <button type="button" class="close btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body text-center">
-                    <form method="POST" action="" id="depositForm">
-                        {{ depositForm.hidden_tag() }}
-                        <div class="mb-3">
-                            {{ depositForm.amount(class="input form-control", placeholder="Enter Amount") }}
-                        </div>
-                </div>
-                <div class="modal-footer justify-content-center">
-                    <p>{{ depositForm.submit(class="button-green btn btn-secondary", value="Deposit") }}</p>
-                    <a class="button-red btn btn-primary" href="{{ url_for('accounttransfer', username=user_information.username) }}" role="button">Cancel</a>
-                </div>
-                </form>
-            </div>
-        </div>
-    </div>
-
-    <!-- Withdraw Modal -->
-    <div class="modal fade" id="withdrawModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h4>Withdraw</h4>
-                    <button type="button" class="close btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body text-center">
-                    <form method="POST" action="" id="withdrawForm">
-                        {{ withdrawForm.hidden_tag() }}
-                        <div class="mb-3">
-                            {{ withdrawForm.amount(class="input form-control", placeholder="Enter Amount") }}
-                        </div>
-                </div>
-                <div class="modal-footer justify-content-center">
-                    <p>{{ withdrawForm.submit(class="button-red btn btn-secondary", value="Withdraw") }}</p>
-                    <a class="button-red btn btn-primary" href="{{ url_for('accounttransfer', username=username) }}" role="button">Cancel</a>
-                </div>
-                </form>
-            </div>
-        </div>
+          <div class="col ps-4">
+              <table class="table table-dark table-striped fs-5">
+                  <thead>
+                      <tr class="text-center">
+                      <th scope="col" class="col-4">Type</th>
+                      <th scope="col" class="col-4">Total Amount</th>
+                      <th scope="col" class="col-4">Date of Transaction</th>
+                      </tr>
+                  </thead>
+                  <tbody>
+                    {% for transaction in portfolio_transactions %}
+                      <tr class="text-center">
+                        <th scope="row">{{ transaction.type }}</th>
+                        <td>${{ "{:,.2f}".format(transaction.amount) }}</td>
+                        <td>{{ transaction.date.strftime('%m/%d/%Y') }}</td>
+                      </tr>
+                    {% endfor %}
+                  </tbody>
+              </table>
+          </div>
+      </div>
     </div>
 </body>
+
+<!-- Deposit Modal -->
+<div class="modal fade" id="depositModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+            <h4>Deposit</h4>
+          <button type="button" class="close btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body text-center">
+            <form method="POST" action="" id="depositForm">
+              {{ depositForm.hidden_tag() }}
+                <div class="mb-3">
+                  {{ depositForm.amount(class="input form-control", placeholder="Enter Amount") }}
+                </div>
+          </div>
+        <div class="modal-footer justify-content-center">
+          <p>{{ depositForm.submit(class="button-green btn btn-secondary", value="Deposit") }}</p>
+          <a class="button-red btn btn-primary" href="{{ url_for('accounttransfer', username=user_information) }}" role="button">Cancel</a>
+        </div>
+      </form>
+      </div>
+    </div>
+</div>
+
+<!-- Withdraw Modal -->
+<div class="modal fade" id="withdrawModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+            <h4>Withdraw</h4>
+          <button type="button" class="close btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body text-center">
+            <form method="POST" action="" id="withdrawForm">
+              {{ withdrawForm.hidden_tag() }}
+                <div class="mb-3">
+                  {{ withdrawForm.amount(class="input form-control", placeholder="Enter Amount") }}
+                </div>
+        </div>
+        <div class="modal-footer justify-content-center">
+          <p>{{ withdrawForm.submit(class="button-green btn btn-secondary", value="Withdraw") }}</p>
+          <a class="button-red btn btn-primary" href="{{ url_for('accounttransfer', username=username) }}" role="button">Cancel</a>
+        </div>
+      </form>
+      </div>
+    </div>
+</div>
+
 {% endblock %}

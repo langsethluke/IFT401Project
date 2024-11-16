@@ -21,26 +21,25 @@
             </div>
         </div>
 
-<!-- Flash Messages -->
-<div class="row">
-  <div class="col">
-      {% with messages = get_flashed_messages(with_categories=true) %}
-      {% if messages %}
-      <div class="text-center">
-          {% for category, message in messages %}
-          <div class="alert alert-{{ 'success' if category == 'success' else 'danger' }} alert-dismissible fade show text-center mx-auto" 
-               role="alert" 
-               style="max-width: 400px; margin-top: -30px; margin-bottom: 20px;">
-              {{ message }}
-              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        <!-- Flash Messages -->
+        <div class="row">
+          <div class="col">
+              {% with messages = get_flashed_messages(with_categories=true) %}
+              {% if messages %}
+              <div class="text-center">
+                  {% for category, message in messages %}
+                  <div class="alert alert-{{ 'success' if category == 'success' else 'danger' }} alert-dismissible fade show text-center mx-auto" 
+                      role="alert" 
+                      style="max-width: 400px; margin-top: -30px; margin-bottom: 20px;">
+                      {{ message }}
+                      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                  </div>
+                  {% endfor %}
+              </div>
+              {% endif %}
+              {% endwith %}
           </div>
-          {% endfor %}
-      </div>
-      {% endif %}
-      {% endwith %}
-  </div>
-</div>
-
+        </div>
 
         <div class="row">
             <div class="col ps-4">
@@ -62,8 +61,8 @@
                 {% for stock in stocks %}
                 <tr class="text-center">
                   <th scope="row">{{ stock.stock_name }} ({{ stock.ticker_symbol }})</th>
-                  <td>${{ "{:,.2f}".format(stock.current_market_price) }}</td>
-                  <td id="percentageValue">{{ stock.precentage_change }}%</td>
+                  <td id="price-{{ stock.id }}" hx-get="/get_stock_price/{{ stock.id }}" hx-trigger="load, every 5s" hx-target="#price-{{ stock.id }}"></td>
+                  <td id="percentage-{{ stock.id }}" hx-get="/get_percentage_change/{{ stock.id }}" hx-trigger="load, every 5s" hx-target="#percentage-{{ stock.id }}"></td>
                 </tr>
                 {% endfor %}
               </tbody>
@@ -111,6 +110,7 @@
     document.getElementById("form").submit();
    }    
 </script>
+
 <script>
   var percentageElements = document.querySelectorAll('#percentageValue');
 
@@ -127,4 +127,7 @@
       }
   });
 </script>
+
+<!--- HTMX JS -->
+<script src="https://unpkg.com/htmx.org@2.0.3" integrity="sha384-0895/pl2MU10Hqc6jd4RvrthNlDiE9U1tWmX7WRESftEDRosgxNsQG/Ze9YMRzHq" crossorigin="anonymous"></script>
 {% endblock %}

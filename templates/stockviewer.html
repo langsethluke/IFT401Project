@@ -3,6 +3,7 @@
 {% block content %}
 <body>
     <div class="container-fluid ps-4">
+
         <!-- Flash Messages -->
         <div class="row">
             <div class="col">
@@ -31,8 +32,8 @@
         </div>
         <div class="row">
             <div class="col-7">
-                <h2>Current Price: ${{ "{:,.2f}".format(stock_information.current_market_price) }}</h2>
-                <h3 id="precentageChange">Today's Change:  <span id="percentageValue">{{ stock_information.precentage_change }}%</span></h3>
+                <h2>Current Price: <span id="price" hx-get="/get_stock_price/{{ stock_information.id }}" hx-trigger="load, every 5s" hx-target="#price"></span></h2>
+                <h3>Today's Change: <span id="percentage-{{ stock_information.id }}" hx-get="/get_percentage_change/{{ stock_information.id }}" hx-trigger="load, every 5s" hx-target="#percentage-{{ stock_information.id }}"></span></h3>
                 <br>
                 <h6>Opening Price: ${{ "{:,.2f}".format(stock_information.opening_price) }}</h6>
                 <h6>Today's High: ${{ "{:,.2f}".format(stock_information.todays_high) }}</h6>
@@ -47,11 +48,11 @@
                 <h4 id="shares">Number of Shares Available to Purchase: {{ stock_information.number_of_shares_to_purchase }}</h4>
                 <br>
                 <br>
-                {% if market_open %}
+                {% if market_status %}
                     <button id="buy" type="submit" name="submit" value="Buy" class="button-green btn btn-secondary me-3" style="width:85px">Buy</button>
                     <button id="sell" type="submit" name="submit" value="Sell" class="button-red btn btn-secondary" style="width:85px">Sell</button>
                 {% else %}
-                    <button id="buy" type="submit" name="submit" value="Buy" class="button-green btn btn-secondary me-3" style="width:85px" disabled>Buy (Market Closed)</button>
+                    <button id= "buy" type="submit" name="submit" value="Buy" class="button-green btn btn-secondary me-3" style="width:85px" disabled>Buy (Market Closed)</button>
                     <button id="sell" type="submit" name="submit" value="Sell" class="button-red btn btn-secondary" style="width:85px" disabled>Sell (Market Closed)</button>
                 {% endif %}
                 <br>
@@ -65,10 +66,14 @@
                 <br>
                 <h5 id="displayTotal">Total Amount: $0</h5>
                 <br>
-                    <p id="stockButton">{{ stockForm.submit(class="button-green btn btn-primary w-25", value="Buy") }}</p>
+                    {% if market_status %}
+                        <p id="stockButton">{{ stockForm.submit(class="button-green btn btn-primary w-25", value="Buy") }}</p>
+                    {% else %}
+                        <p id="stockButton">{{ stockForm.submit(class="btn btn-primary w-25", value="Buy", disabled=True, style="background-color: grey") }}</p>
+                    {% endif %}
                 </form>
             </div>
-        </div>
+        </div> 
     </div>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </body>
@@ -141,15 +146,25 @@
     });
 
     var stockname = "{{ stock_information.stock_name }}";
-    var cost = "{{ stock_information.current_market_price }}";
+    var cost =  parseFloat("{{ stock_information.current_market_price }}");
     var numOfSharesMain = document.getElementById("numOfShares");
+
+    // Updates the cost variable after each time the HTMX gets new data on the price variable in the stocks table
+    document.body.addEventListener('htmx:afterSwap', function(event) {
+        if (event.target.id === 'price') {
+            cost = parseFloat(document.getElementById('price').innerText.replace('$',''));
+        }
+    });
 
     document.getElementById("numOfShares").addEventListener("keyup", function changeText()
     {
         var numOfShares = this.value
         var total = numOfShares * cost;
+        var formatTotal = total.toLocaleString('en-US');
 
-        document.getElementById("displayTotal").innerHTML = "Total Amount: $" + total.toFixed(2);
+        console.log(formatTotal)
+
+        document.getElementById("displayTotal").innerHTML = "Total Amount: $" + formatTotal;
     })
 
     function confirmBuy() {
@@ -166,18 +181,6 @@
         var stock_name = stockname
 
         return confirm("Confirm the Sale Order of " + numOfShares + " Share\(s\)" +  " of " + stock_name + " for a Total Amount of $" + total.toFixed(2));
-    }
-
-    var percentageChange = parseFloat(document.getElementById('percentageValue').textContent);
-
-    var percentageElement = document.getElementById('percentageValue');
-
-    if (percentageChange > 0) {
-        percentageElement.textContent = "+" + percentageChange.toFixed(2) + "%";
-        percentageElement.style.color = 'green';  
-    } else if (percentageChange < 0) {
-        percentageElement.textContent = percentageChange.toFixed(2) + "%";
-        percentageElement.style.color = 'red';    
     }
 </script>
 {% endblock %}

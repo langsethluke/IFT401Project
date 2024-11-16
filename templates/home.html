@@ -1,47 +1,8 @@
 {% extends "index.html" %} 
 {% block title %}Home{% endblock %} 
 {% block content%}
-<style> 
-    .list-group .item-red a {
-        color: red;
-    }
-
-    .list-group .item-green a {
-        color: green;
-    }
-
-    .list .item-green a:hover {
-        transform: scale(1.1);
-        background-color: #333333;
-        border-radius: 8px;
-        padding-right: 1.5em;
-        text-decoration: none;
-        transition: transform 0.5s;
-    }
-
-    .list .item-red a:hover {
-        transform: scale(1.1);
-        background-color: #333333;
-        border-radius: 8px;
-        padding-right: 1.5em;
-        text-decoration: none;
-        transition: transform 0.5s;
-    }
-
-    /* Adjusted Flash Message Position and Width */
-    .flash-message {
-        position: absolute;
-        top: 10%;
-        left: 50%;
-        transform: translate(-50%, 0);
-        z-index: 10;
-        text-align: center;
-        width: 30%; /* Adjust width to fit the yellow line boundaries */
-        min-width: 300px; /* Ensures the box doesn't become too small */
-    }
-</style>
-
 <div class="container-fluid">
+
     <!-- Flash Messages -->
     {% with messages = get_flashed_messages(with_categories=true) %}
     {% if messages %}
@@ -55,75 +16,86 @@
     </div>
     {% endif %}
     {% endwith %}
-
+    
     <div class="row">
         <div class="col ps-4">
+            <br>
             <h1>{{ message }} {{ user_information.first_name }}</h1>
             <br>
         </div>
     </div>
     <div class="row">
         <div class="col-6 ps-4">
-            <h2>Today's Portfolio Value: ${{ "{:,.2f}".format(portfolio.total_balance) }}</h2>
-            <br>
-            <h2>Today's Change: Display Total Value Change%</h2>
+            <h2>Today's Portfolio Value: <span id="totalValue" hx-get="/get_portfolio_total_value/{{ user_information.id }}" hx-trigger="load, every 5s" hx-target="#totalValue"></span></h2>
             <br>
             <canvas id="myChart"></canvas>
         </div>
         <div class="col-3 text-center">
             <h3>Top Performers</h3>
-            <br />
+            <br>
             <ul class="list list-group top" id="top-performers">
                 <!-- JavaScript adds ul items here -->
             </ul>
         </div>
         <div class="col-3 text-center">
-            <h3>Low Performers</h3>
-            <br />
-            <ul class="list list-group low" id="low-performers">
-                <!-- JavaScript adds ul items here -->
-            </ul>
+        <h3>Low Performers</h3>
+        <br>
+        <ul class="list list-group low" id="low-performers">
+            <!-- JavaScript adds ul items here -->
+        </ul>
         </div>
     </div> 
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 <script>
-    document.addEventListener('DOMContentLoaded', () => {
-        fetch('/api/stocks')
-            .then(response => response.json())
-            .then(data => {
-                const topPerformers = data.top_performers;
-                const lowPerformers = data.low_performers;
 
-                const topList = document.getElementById('top-performers');
-                topPerformers.forEach(stock => {
-                    const li = document.createElement('li');
-                    if (stock.percentage < 0) {
-                        li.classList.add('item', 'item-red', 'list-group-item');
-                    } else {
-                        li.classList.add('item', 'item-green', 'list-group-item');
-                    }
-                    li.id = stock.id;
-                    li.innerHTML = `<a href="#">${stock.ticker} ${stock.percentage}%</a>`;
-                    topList.appendChild(li);
-                });
+document.addEventListener('DOMContentLoaded', () => {
+    fetch('/api/stocks')
+    .then(response => response.json())
+    .then(data => {
+        const topPerformers = data.top_performers;
+        const lowPerformers = data.low_performers;
+        const topList = document.getElementById('top-performers');
+        const username ="{{ user_information.username }}"
 
-                const lowList = document.getElementById('low-performers');
-                lowPerformers.forEach(stock => {
-                    const li = document.createElement('li');
-                    if (stock.percentage < 0) {
-                        li.classList.add('item', 'item-red', 'list-group-item');
-                    } else {
-                        li.classList.add('item', 'item-green', 'list-group-item');
-                    }
-                    li.id = stock.id;
-                    li.innerHTML = `<a href="#">${stock.ticker} ${stock.percentage}%</a>`;
-                    lowList.appendChild(li);
-                });
-            })
-            .catch(err => console.log('Error fetching stock data: ', err));
-    });
+        topPerformers.forEach(stock => {
+            const li = document.createElement('li');
+
+            const percent = stock.percentage;
+            const formatPercent = percent.toFixed(2);
+
+            if (stock.percentage < 0) {
+                li.classList.add('item', 'item-red', 'list-group-item');
+            } else {
+                li.classList.add('item', 'item-green', 'list-group-item');
+            }
+            li.id = stock.id;
+            li.innerHTML = `<a href="/${stock.name}/${username}">${stock.ticker} ${formatPercent}%</a>`;
+            topList.appendChild(li);
+        });
+        
+        const lowList = document.getElementById('low-performers');
+        lowPerformers.forEach(stock => {
+            const li = document.createElement('li');
+
+            const percent = stock.percentage;
+            const formatPercent = percent.toFixed(2);
+
+            if (stock.percentage < 0) {
+                li.classList.add('item', 'item-red', 'list-group-item');
+            } else {
+                li.classList.add('item', 'item-green', 'list-group-item');
+            }
+            li.id = stock.id;
+            li.innerHTML = `<a href="#">${stock.ticker} ${formatPercent}%</a>`;
+            lowList.appendChild(li);
+        });
+    })
+    
+    .catch(err => console.log('Error fetching stock data: ', err));
+});
 
     const ctx = document.getElementById("myChart");
 
@@ -143,8 +115,8 @@
                 "{{ portfolio_value_history.three }}",
                 "{{ portfolio_value_history.three_thirty }}",
                 "{{ portfolio_value_history.four }}",
-    ],
-    };
+            ],
+        };
 
     new Chart(ctx, {
         type: 'line',
@@ -159,6 +131,7 @@
                 }
             ]
         },
+
         options: {
             responsive: true,
             plugins: {
@@ -175,8 +148,7 @@
                 }
             }
         }
-    });
+    })
 
 </script>
-{% endblock %}
-
+  {% endblock %}

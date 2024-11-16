@@ -20,18 +20,18 @@
               <h1>Account Creation</h1>
               <br>
               <h5>All Fields are Required</h5>
-              </br> 
-
-              <!-- Flash Messages -->
-              {% with messages = get_flashed_messages(category_filter=["error"]) %}
-              {% if messages %}
+              </br>
+              
+                <!-- Flash Messages -->
+                {% with messages = get_flashed_messages(category_filter=["error"]) %}
+                {% if messages %}
                   {% for message in messages %}
                       <div class="alert alert-danger" role="alert">
                           {{ message }}
                       </div>
                   {% endfor %}
-              {% endif %}
-          {% endwith %}
+                {% endif %}
+                {% endwith %}
 
                 <form method="POST" action="">
                     {{ userForm.hidden_tag() }}
@@ -72,19 +72,17 @@
                     </div>
                 <br>
                    <p>{{ userForm.submit(class="button-green btn btn-secondary w-50", value="Submit") }}</p>
-                    <!--<button type="button" class="button-green btn btn-primary" data-bs-toggle="modal" data-bs-target="#Modal">
-                        Create Account
-                    </button>-->
                     <a class="button-red btn btn-primary" href="{{ url_for('accountcanceled' )}}" role="button">Cancel</a>
                 </form>
-                
+
                 <!-- Back to Login Link -->
                 <br>
-                <a href="{{ url_for('login') }}" class="btn btn-link">Back to Login</a>
+                <a class="link" href="{{ url_for('login') }}">Back to Login</a>
+                
               </div>
         </div>
         <footer class="mt-auto">
-            <p>Created by: Luke Langseth, Isaac Petray, Brandon Tubman, and Hari Adapala</p>
+            <p>&copy Goat Trading | All Rights Reserved</p>
         </footer>
 
         <!-- Bootstrap JS and dependencies -->

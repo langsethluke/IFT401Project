@@ -68,14 +68,27 @@ body {
 
 /* List Hover Styles for Green or Red Items*/
 
-.list .item-green a:hover {
-    color: green;
-    text-decoration: none;
-}
-
-.list .item-red a:hover {
+.list-group .item-red a {
     color: red;
+}
+.list-group .item-green a {
+    color: green;
+}
+.list .item-green a:hover {
+    transform: scale(1.1);
+    background-color: #333333;
+    border-radius: 8px;
+    padding-right: 1.5em;
     text-decoration: none;
+    transition: transform 0.5s
+}
+.list .item-red a:hover {
+    transform: scale(1.1);
+    background-color: #333333;
+    border-radius: 8px;
+    padding-right: 1.5em;
+    text-decoration: none;
+    transition: transform 0.5s
 }
 
 /* Text Input Styles */
@@ -195,6 +208,16 @@ footer {
     color: green;
 }
 
-/* Table Styles */
+/* Adjusted Flash Message Position and Width */
+.flash-message {
+    position: absolute;
+    top: 10%;
+    left: 50%;
+    transform: translate(-50%, 0);
+    z-index: 10;
+    text-align: center;
+    width: 30%; 
+    min-width: 300px; 
+}
 
 

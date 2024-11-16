@@ -1,25 +1,27 @@
 {% extends "adminindex.html" %}
-{% block title %}Admin Market Hours{% endblock %}
+{% block title %} Admin Market Hours {% endblock %}
 {% block content %}
 <body>
     <div class="container-fluid">
-        <!-- Flash Messages -->
-        <div class="row">
-            <div class="col">
-                {% with messages = get_flashed_messages(with_categories=true) %}
-                {% if messages %}
-                <div class="text-center">
-                    {% for category, message in messages %}
-                    <div class="alert alert-{{ category }} alert-dismissible fade show text-center mx-auto" role="alert" style="max-width: 400px; margin-top: 10px;">
-                        {{ message }}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                    </div>
-                    {% endfor %}
+
+       <!-- Flash Messages -->
+       <div class="row">
+        <div class="col">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+            <div class="text-center">
+                {% for category, message in messages %}
+                <div class="alert alert-{{ category }} alert-dismissible fade show text-center mx-auto" role="alert" style="max-width: 400px; margin-top: 10px;">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
-                {% endif %}
-                {% endwith %}
+                {% endfor %}
             </div>
+            {% endif %}
+            {% endwith %}
+          </div>
         </div>
+
         <!-- Market Hours Content -->
         <div class="row">
             <div class="col ps-4">
@@ -30,46 +32,132 @@
         </div>
         <div class="row">
             <div class="col ps-4">
-                <h2>Current Market Hours: {{ market_hours.open_time }} - {{ market_hours.close_time }} </h2>
-                <h3>Market Status: {% if market_hours.is_open %} Open {% else %} Closed {% endif %}</h3>
+              <h2>Today's Market Hours: <span class="time">{{ market_hours.open_time }}</span> - <span class="time">{{ market_hours.close_time }}</span></h2>
+              <h3>Market Status: <span id="marketStatus" style="color: green">{% if market_status %} Open {% else %} Closed {% endif %}</span></h3>
+              <br>
+              {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            <h5 class="{{ category }}">{{ message }}</h5>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+              <button type="button" class="button-green btn btn-primary me-3" data-bs-toggle="modal" data-bs-target="#createStockModal">
+                Edit Market Hours
+              </button>
+            </div>
+            <div class="col">
+              <table class="table table-dark table-striped fs-4">
+                <thead>
+                    <tr class="text-center">
+                    <th scope="col" class="col-4">Day</th>
+                    <th scope="col" class="col-4">Open Time</th>
+                    <th scope="col" class="col-4">Close Time</th>
+                    </tr>
+                </thead>
+                <tbody>
+                  {% for day in all_market_hours %}
+                        <tr class="text-center">
+                        <th scope="row">{{ day.day }}</a></th>
+                        <td class="time">{{ day.open_time }}</td>
+                        <td class="time">{{ day.close_time }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
             </div>
         </div>
         <br>
-        <div class="row">
-            <div class="col ps-4">
-                <button type="button" class="button-green btn btn-primary me-3" data-bs-toggle="modal" data-bs-target="#createStockModal">
-                    Edit Market Hours
-                </button>
-            </div>
-        </div>
     </div>
 </body>
 
 <!-- Edit Market Hours Modal -->
 <div class="modal fade" id="createStockModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h2>Edit Market Hours</h2>
-        <button type="button" class="close btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body text-center">
-        <form method="POST" action="{{ url_for('adminmarkethours', username=user_information.username) }}">
-          {{ form.hidden_tag() }}
-          <div class="mb-3">
-            {{ form.open_time.label }}
-            {{ form.open_time(class="form-control") }}
-          </div>
-          <div class="mb-3">
-            {{ form.close_time.label }}
-            {{ form.close_time(class="form-control") }}
-          </div>
-          <div class="mb-3">
-            {{ form.submit(class="btn btn-primary") }}
-          </div>
-        </form>
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+            <h2>Edit Market Hours</h2>
+          <button type="button" class="close btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body text-center">
+          <form method="POST" action="" id="form">
+            {{ form.hidden_tag() }}
+            <div class="mb-3">
+              {{ form.day_of_week.label }}
+              {{ form.day_of_week(class="form-control") }}
+            </div>
+            <div class="mb-3">
+              {{ form.open_time.label }}
+              {{ form.open_time(class="form-control") }}
+            </div>
+            <div class="mb-3">
+              {{ form.close_time.label }}
+              {{ form.close_time(class="form-control") }}
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer justify-content-center">
+            <p>{{ form.submit(class="button-green btn btn-secondary", value="Set Market Hours", onclick="form_submit()") }}</p>
+            <a class="button-red btn btn-primary" href="{{ url_for('adminmarkethours', username=user_information.username) }}" role="button">Cancel</a>
+        </div>
       </div>
     </div>
-  </div>
-</div>
+</div> 
+
+<script type="text/javascript">
+  function form_submit() {
+    document.getElementById("form").submit();
+   }    
+</script>
+
+<script>
+
+  // Changes the color of the Market Status based on if it is open or closed
+  marketStatusTag = document.getElementById('marketStatus')
+
+  marketStatus = document.getElementById('marketStatus').textContent.trim()
+
+  if (marketStatus === 'Open') {
+    marketStatusTag.style.color = 'green'
+  } else if (marketStatus === 'Closed') {
+    marketStatusTag.style.color = 'red'
+  }
+
+  // Converts Military Time to Standard 12-Hour Time
+  allTimes = document.getElementsByClassName("time");
+
+  for (let i = 0; i < allTimes.length; i++) {
+    time = allTimes[i].textContent.trim();
+
+    // Helps set the time as closed if the column is null or if it is on the weekend
+    if (!time || time == "None") {
+      console.log("test")
+      document.getElementsByClassName("time")[i].textContent = "Closed"
+    } else if (time != "None") {
+      timeSplit = time.split(':');
+
+      hours = timeSplit[0];
+      minutes = timeSplit[1];
+
+      console.log(minutes)
+
+      var newTime
+
+      if (hours > 0 && hours <= 12) {
+        hours = hours.replace(0, "")
+        newTime = "" + hours;
+      } else if (hours > 12) {
+        newTime = "" + (hours - 12);
+      } else if (hours == 0) {
+        newTime = "12";
+      }
+  
+      newTime += ":" + minutes;
+
+      newTime += (hours >= 12) ? "pm" : "am";
+
+      document.getElementsByClassName("time")[i].textContent = newTime
+    }
+  }
+</script>
 {% endblock %}
