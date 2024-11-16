@@ -21,6 +21,18 @@
               <br>
               <h5>All Fields are Required</h5>
               </br> 
+
+              <!-- Flash Messages -->
+              {% with messages = get_flashed_messages(category_filter=["error"]) %}
+              {% if messages %}
+                  {% for message in messages %}
+                      <div class="alert alert-danger" role="alert">
+                          {{ message }}
+                      </div>
+                  {% endfor %}
+              {% endif %}
+          {% endwith %}
+
                 <form method="POST" action="">
                     {{ userForm.hidden_tag() }}
                     <div class="form-group">
@@ -65,6 +77,10 @@
                     </button>-->
                     <a class="button-red btn btn-primary" href="{{ url_for('accountcanceled' )}}" role="button">Cancel</a>
                 </form>
+                
+                <!-- Back to Login Link -->
+                <br>
+                <a href="{{ url_for('login') }}" class="btn btn-link">Back to Login</a>
               </div>
         </div>
         <footer class="mt-auto">

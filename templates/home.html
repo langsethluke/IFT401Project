@@ -16,7 +16,7 @@
         border-radius: 8px;
         padding-right: 1.5em;
         text-decoration: none;
-        transition: transform 0.5s
+        transition: transform 0.5s;
     }
 
     .list .item-red a:hover {
@@ -25,13 +25,39 @@
         border-radius: 8px;
         padding-right: 1.5em;
         text-decoration: none;
-        transition: transform 0.5s
+        transition: transform 0.5s;
+    }
+
+    /* Adjusted Flash Message Position and Width */
+    .flash-message {
+        position: absolute;
+        top: 10%;
+        left: 50%;
+        transform: translate(-50%, 0);
+        z-index: 10;
+        text-align: center;
+        width: 30%; /* Adjust width to fit the yellow line boundaries */
+        min-width: 300px; /* Ensures the box doesn't become too small */
     }
 </style>
+
 <div class="container-fluid">
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    <div class="flash-message">
+        {% for category, message in messages %}
+        <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    {% endwith %}
+
     <div class="row">
         <div class="col ps-4">
-            <br>
             <h1>{{ message }} {{ user_information.first_name }}</h1>
             <br>
         </div>
@@ -52,11 +78,11 @@
             </ul>
         </div>
         <div class="col-3 text-center">
-        <h3>Low Performers</h3>
-        <br />
-        <ul class="list list-group low" id="low-performers">
-            <!-- JavaScript adds ul items here -->
-        </ul>
+            <h3>Low Performers</h3>
+            <br />
+            <ul class="list list-group low" id="low-performers">
+                <!-- JavaScript adds ul items here -->
+            </ul>
         </div>
     </div> 
 </div>
@@ -64,92 +90,93 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
     document.addEventListener('DOMContentLoaded', () => {
-            fetch('/api/stocks')
-                .then(response => response.json())
-                .then(data => {
-                    const topPerformers = data.top_performers;
-                    const lowPerformers = data.low_performers;
+        fetch('/api/stocks')
+            .then(response => response.json())
+            .then(data => {
+                const topPerformers = data.top_performers;
+                const lowPerformers = data.low_performers;
 
-                    const topList = document.getElementById('top-performers');
-                    topPerformers.forEach(stock => {
-                        const li = document.createElement('li');
-                        if (stock.percentage < 0) {
-                            li.classList.add('item', 'item-red', 'list-group-item');
-                        } else {
-                            li.classList.add('item', 'item-green', 'list-group-item');
-                        }
-                        li.id = stock.id;
-                        li.innerHTML = `<a href="#">${stock.ticker} ${stock.percentage}%</a>`;
-                        topList.appendChild(li);
-                    });
-
-                    const lowList = document.getElementById('low-performers');
-                    lowPerformers.forEach(stock => {
-                        const li = document.createElement('li');
-                        if (stock.percentage < 0) {
-                            li.classList.add('item', 'item-red', 'list-group-item');
-                        } else {
-                            li.classList.add('item', 'item-green', 'list-group-item');
-                        }
-                        li.id = stock.id;
-                        li.innerHTML = `<a href="#">${stock.ticker} ${stock.percentage}%</a>`;
-                        lowList.appendChild(li);
-                    });
-                })
-                .catch(err => console.log('Error fetching stock data: ', err));
-        });
-
-        const ctx = document.getElementById("myChart");
-
-        const chartData = {
-            labels: ["9:30am", "10am", "10:30am", "11:00am", "11:30am", "12:00pm", "12:30pm", "1:00pm", "1:30pm", "2:00pm", "2:30pm", "3:00pm", "3:30pm", "4:00pm"],
-            data: [ "{{ portfolio_value_history.nine_thirty }}",
-                    "{{ portfolio_value_history.ten }}",
-                    "{{ portfolio_value_history.ten_thirty }}",
-                    "{{ portfolio_value_history.eleven }}",
-                    "{{ portfolio_value_history.eleven_thirty }}",
-                    "{{ portfolio_value_history.twelve }}",
-                    "{{ portfolio_value_history.twelve_thirty }}",
-                    "{{ portfolio_value_history.one }}",
-                    "{{ portfolio_value_history.one_thirty }}",
-                    "{{ portfolio_value_history.two }}",
-                    "{{ portfolio_value_history.two_thirty }}",
-                    "{{ portfolio_value_history.three }}",
-                    "{{ portfolio_value_history.three_thirty }}",
-                    "{{ portfolio_value_history.four }}",
-        ],
-        };
-
-        new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: chartData.labels,
-                datasets: [
-                    {
-                        data: chartData.data,
-                        borderColor: 'green',
-                        backgroundColor: 'rgba(0, 128, 0, 0.13)',
-                        fill: true,
+                const topList = document.getElementById('top-performers');
+                topPerformers.forEach(stock => {
+                    const li = document.createElement('li');
+                    if (stock.percentage < 0) {
+                        li.classList.add('item', 'item-red', 'list-group-item');
+                    } else {
+                        li.classList.add('item', 'item-green', 'list-group-item');
                     }
-                ]
+                    li.id = stock.id;
+                    li.innerHTML = `<a href="#">${stock.ticker} ${stock.percentage}%</a>`;
+                    topList.appendChild(li);
+                });
+
+                const lowList = document.getElementById('low-performers');
+                lowPerformers.forEach(stock => {
+                    const li = document.createElement('li');
+                    if (stock.percentage < 0) {
+                        li.classList.add('item', 'item-red', 'list-group-item');
+                    } else {
+                        li.classList.add('item', 'item-green', 'list-group-item');
+                    }
+                    li.id = stock.id;
+                    li.innerHTML = `<a href="#">${stock.ticker} ${stock.percentage}%</a>`;
+                    lowList.appendChild(li);
+                });
+            })
+            .catch(err => console.log('Error fetching stock data: ', err));
+    });
+
+    const ctx = document.getElementById("myChart");
+
+    const chartData = {
+        labels: ["9:30am", "10am", "10:30am", "11:00am", "11:30am", "12:00pm", "12:30pm", "1:00pm", "1:30pm", "2:00pm", "2:30pm", "3:00pm", "3:30pm", "4:00pm"],
+        data: [ "{{ portfolio_value_history.nine_thirty }}",
+                "{{ portfolio_value_history.ten }}",
+                "{{ portfolio_value_history.ten_thirty }}",
+                "{{ portfolio_value_history.eleven }}",
+                "{{ portfolio_value_history.eleven_thirty }}",
+                "{{ portfolio_value_history.twelve }}",
+                "{{ portfolio_value_history.twelve_thirty }}",
+                "{{ portfolio_value_history.one }}",
+                "{{ portfolio_value_history.one_thirty }}",
+                "{{ portfolio_value_history.two }}",
+                "{{ portfolio_value_history.two_thirty }}",
+                "{{ portfolio_value_history.three }}",
+                "{{ portfolio_value_history.three_thirty }}",
+                "{{ portfolio_value_history.four }}",
+    ],
+    };
+
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: chartData.labels,
+            datasets: [
+                {
+                    data: chartData.data,
+                    borderColor: 'green',
+                    backgroundColor: 'rgba(0, 128, 0, 0.13)',
+                    fill: true,
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    display: false
+                }
             },
-            options: {
-                responsive: true,
-                plugins: {
-                    legend: {
-                        display: false
-                    }
-                },
-                interaction: {
-                    intersect: false,
-                },
-                scales: {
-                    y: {
-                        beginAtZero: false,
-                    }
+            interaction: {
+                intersect: false,
+            },
+            scales: {
+                y: {
+                    beginAtZero: false,
                 }
             }
-        })
+        }
+    });
 
-    </script>
-  {% endblock %}
+</script>
+{% endblock %}
+

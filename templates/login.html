@@ -17,26 +17,41 @@
               <img src="static/logo.png/" width="175px"/>
               <h1>Welcome to Goat Trading</h1>
               <h2>Please Login</h2>
-              </br> 
-                <form method="post" action="">
-                    <div class="form-group">
-                      <div class="row justify-content-center">
-                        <input type="text" class="input form-control w-75 " id="usernameInput" name="username" placeholder="Username">
-                      </div>
-                    </div> 
-                  <br>
-                    <div class="form-group">
-                      <div class="row justify-content-center">
-                        <input type="password" class="input form-control w-75" id="passwordInput" name="password" placeholder="Password">
-                      </div>
-                    </div>
-                    <br>
-                    <button type="submit" class="button-green btn btn-primary">Log in</button>
-                  </form>
-                <br>
-                <p>Don't have an Account? <a class="link" href="{{ url_for('createaccount') }}">Create One Today!</a></p>
+              <br>
+
+              <!-- Flash Messages -->
+              {% with messages = get_flashed_messages(with_categories=true) %}
+              {% if messages %}
+              <div>
+                  {% for category, message in messages %}
+                  <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                      {{ message }}
+                      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                  </div>
+                  {% endfor %}
               </div>
+              {% endif %}
+              {% endwith %}
+
+              <form method="post" action="">
+                  <div class="form-group">
+                      <div class="row justify-content-center">
+                          <input type="text" class="input form-control w-75 " id="usernameInput" name="username" placeholder="Username">
+                      </div>
+                  </div> 
+                  <br>
+                  <div class="form-group">
+                      <div class="row justify-content-center">
+                          <input type="password" class="input form-control w-75" id="passwordInput" name="password" placeholder="Password">
+                      </div>
+                  </div>
+                  <br>
+                  <button type="submit" class="button-green btn btn-primary">Log in</button>
+              </form>
+              <br>
+              <p>Don't have an Account? <a class="link" href="{{ url_for('createaccount') }}">Create One Today!</a></p>
             </div>
+        </div>
     </body>
     <footer class="mt-auto">
       <p>Created by: Luke Langseth, Isaac Petray, Brandon Tubman, and Hari Adapala</p>

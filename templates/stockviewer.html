@@ -3,6 +3,24 @@
 {% block content %}
 <body>
     <div class="container-fluid ps-4">
+        <!-- Flash Messages -->
+        <div class="row">
+            <div class="col">
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                <div class="text-center">
+                    {% for category, message in messages %}
+                    <div class="alert alert-{{ 'success' if category == 'success' else 'danger' }} alert-dismissible fade show text-center mx-auto" role="alert" style="max-width: 400px; margin-top: 10px;">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+                {% endwith %}
+            </div>
+        </div>
+
         <div class="row">
             <div class="col">
                 <br>
@@ -33,7 +51,7 @@
                     <button id="buy" type="submit" name="submit" value="Buy" class="button-green btn btn-secondary me-3" style="width:85px">Buy</button>
                     <button id="sell" type="submit" name="submit" value="Sell" class="button-red btn btn-secondary" style="width:85px">Sell</button>
                 {% else %}
-                    <button id= "buy" type="submit" name="submit" value="Buy" class="button-green btn btn-secondary me-3" style="width:85px" disabled>Buy (Market Closed)</button>
+                    <button id="buy" type="submit" name="submit" value="Buy" class="button-green btn btn-secondary me-3" style="width:85px" disabled>Buy (Market Closed)</button>
                     <button id="sell" type="submit" name="submit" value="Sell" class="button-red btn btn-secondary" style="width:85px" disabled>Sell (Market Closed)</button>
                 {% endif %}
                 <br>
@@ -42,22 +60,15 @@
                 <form id="buyForm" method="POST" action="" onsubmit="return confirmBuy();">
                     {{ stockForm.hidden_tag() }}
                     <div class="mb-3">
-                      <p id="stockInput">{{ stockForm.numOfShares(class="input form-control w-50 mx-auto text-center", placeholder="Number of Shares")}}</p>
+                      <p id="stockInput">{{ stockForm.numOfShares(class="input form-control w-50 mx-auto text-center", placeholder="Number of Shares") }}</p>
                     </div>
                 <br>
                 <h5 id="displayTotal">Total Amount: $0</h5>
-                {% with messages = get_flashed_messages(with_categories=true) %}
-                    {% if messages %}
-                        {% for category, message in messages %}
-                            <h5 class="{{ category }}">{{ message }}</h5>
-                        {% endfor %}
-                    {% endif %}
-                {% endwith %}
                 <br>
                     <p id="stockButton">{{ stockForm.submit(class="button-green btn btn-primary w-25", value="Buy") }}</p>
                 </form>
             </div>
-        </div> 
+        </div>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </body>

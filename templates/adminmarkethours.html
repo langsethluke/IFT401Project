@@ -1,8 +1,26 @@
 {% extends "adminindex.html" %}
-{% block title %}Admin Stock Hours {% endblock %}
+{% block title %}Admin Market Hours{% endblock %}
 {% block content %}
 <body>
     <div class="container-fluid">
+        <!-- Flash Messages -->
+        <div class="row">
+            <div class="col">
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                <div class="text-center">
+                    {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} alert-dismissible fade show text-center mx-auto" role="alert" style="max-width: 400px; margin-top: 10px;">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+                {% endwith %}
+            </div>
+        </div>
+        <!-- Market Hours Content -->
         <div class="row">
             <div class="col ps-4">
                 <br>
@@ -39,11 +57,11 @@
         <form method="POST" action="{{ url_for('adminmarkethours', username=user_information.username) }}">
           {{ form.hidden_tag() }}
           <div class="mb-3">
-            {{ form.open_time.label }} 
+            {{ form.open_time.label }}
             {{ form.open_time(class="form-control") }}
           </div>
           <div class="mb-3">
-            {{ form.close_time.label }} 
+            {{ form.close_time.label }}
             {{ form.close_time(class="form-control") }}
           </div>
           <div class="mb-3">

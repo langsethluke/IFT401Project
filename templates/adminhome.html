@@ -1,7 +1,22 @@
-{% extends "adminindex.html" %} 
+{% extends "adminindex.html" %}
 {% block title %}Admin Home{% endblock %} 
 {% block content%}
 <div class="container-fluid">
+
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    <div>
+        {% for category, message in messages %}
+        <div class="alert alert-{{ category }} alert-dismissible fade show text-center" role="alert" style="max-width: 400px; margin: 10px auto;">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    {% endwith %}
+
     <div class="row">
         <div class="col ps-4">
             <br>

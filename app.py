@@ -27,7 +27,7 @@ def load_user(id):
 # Configuration for Connecting to the MySQL Database
 
 app.config['SECRET_KEY'] = 'your_secret_key' 
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:KcnE9592@localhost/myflaskdb' 
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:@localhost/Capstone' 
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False 
 app.config['WTF_CSRF_ENABLED'] = False
 
@@ -428,53 +428,82 @@ def login():
         # Checking if the password matches the username
         if user and check_password_hash(user.password, password):
             login_user(user)
+            flash("Logged In Successfully!", "success")  # Add success message
             # If the user is a customer, it redirects them to their home page
             if user.admin == 0:
                 return redirect(url_for('home', username=username))
             # If the user is an admin, it redirects to the admin home page
             elif user.admin == 1:
                 return redirect(url_for('adminhome', username=username))
+        else:
+            flash("Invalid username or password", "error")  # Add error message
+
     return render_template('login.html')
+
 
 @app.route('/createaccount', methods=["GET", "POST"])
 def createaccount():
     userForm = UserForm()
     if userForm.validate_on_submit():
+        # Check if the email already exists
+        existing_email = User.query.filter_by(email=userForm.email.data).first()
+        # Check if the username already exists
+        existing_username = User.query.filter_by(username=userForm.username.data).first()
 
-        hashed_password = generate_password_hash(userForm.password.data)
+        # Check if the password confirmation is empty
+        if not userForm.confirm.data:
+            flash("Error: Password Not Repeated", "error")
+            return render_template('createaccount.html', userForm=userForm)
 
-        # Creates New User
-        new_user = User( 
-                        first_name=userForm.first_name.data, 
-                        last_name=userForm.last_name.data, 
-                        email=userForm.email.data, 
-                        username=userForm.username.data, 
-                        password=hashed_password )
-        
-        # Commits the User first so the Portfolio can get a valid User ID
+        # Check if the password matches the confirmation
+        if userForm.password.data != userForm.confirm.data:
+            flash("Error: Passwords Not Matching", "error")
+            return render_template('createaccount.html', userForm=userForm)
+
+        # Generate the appropriate error message
+        if existing_email and existing_username:
+            flash("Error: An account with this Username and Email already exists", "error")
+        elif existing_email:
+            flash("Error: An account with this Email already exists", "error")
+        elif existing_username:
+            flash("Error: An account with this Username already exists", "error")
+
+        # If any errors were flashed, reload the form
+        if existing_email or existing_username:
+            return render_template('createaccount.html', userForm=userForm)
+
+        # If all checks pass, create the new user
+        new_user = User(
+            first_name=userForm.first_name.data,
+            last_name=userForm.last_name.data,
+            email=userForm.email.data,
+            username=userForm.username.data,
+            password=generate_password_hash(userForm.password.data)
+        )
+
+        # Commit the new user to the database
         db.session.add(new_user)
         db.session.commit()
 
-        # Creates a Portfolio for the user
+        # Create a portfolio for the new user
         new_portfolio = Portfolio(
-                        total_balance = 0,
-                        stock_balance = 0,
-                        cash_balance = 0,
-                        user_id = new_user.id )
+            total_balance=0,
+            stock_balance=0,
+            cash_balance=0,
+            user_id=new_user.id
+        )
 
         db.session.add(new_portfolio)
         db.session.commit()
 
-        new_portfolio_value_history = PortfolioValueHistoryDaily (
-            portfolio_id = new_portfolio.id
-        )
+        # Success message
+        flash("Account created successfully!", "success")
 
-        db.session.add( new_portfolio_value_history)
-        db.session.commit()
-
-        # Redirects to the login so the user can login
+        # Redirect to the login page
         return redirect(url_for('login'))
+
     return render_template('createaccount.html', userForm=userForm)
+
 
 # Canceled Page for User accounts that are canceled in the creation process
 @app.route('/accountcanceled')
@@ -530,61 +559,71 @@ def stockviewer(username, stockname):
 
     if request.method == 'POST':
         if 'submit' in request.form:
-                if request.form['submit'] == 'Buy':
-                    numOfShares = stockForm.numOfShares.data
-                    total_amount = stock_information.current_market_price * numOfShares
-                    if stockForm.validate_on_submit():
-                        if numOfShares > 0:
-                            if total_amount <= portfolio_information.cash_balance:
-                                if numOfShares <= stock_information.number_of_shares_to_purchase:
-                                    new_transaction = StockPortfolio (
-                                        type = "Buy",
-                                        price_per_share = stock_information.current_market_price,
-                                        number_of_shares = numOfShares,
-                                        total_amount = total_amount,
-                                        stock_id = stock_information.id,
-                                        user_id = user_information.id
-                                    )
-                                    portfolio_information.cash_balance -= total_amount
-                                    portfolio_information.stock_balance += total_amount
-                                    stock_information.number_of_shares_to_purchase -= numOfShares
-                                    db.session.add(new_transaction)
-                                    db.session.commit()
-                                    flash('Purchase Order has Been Fulfilled', 'success')
-                                    return redirect(url_for('stockviewer', username=username, stockname=stockname))
-                                else:
-                                    flash('Error: Not Enough Shares to Purchase', 'error')
-                            else:
-                                flash('Error: Insufficient Funds', 'error')
-                        else:
-                            flash('Error: Please Enter in a Valid Number', 'error')
-                elif request.form['submit'] == 'Sell':
-                    numOfShares = stockForm.numOfShares.data
-                    total_amount = stock_information.current_market_price * numOfShares
-                    if stockForm.validate_on_submit():
-                        if numOfShares > 0:
-                            if numOfShares <= numOfSharesOwned:
-                                new_transaction = StockPortfolio (
-                                    type = "Sell",
-                                    price_per_share = stock_information.current_market_price,
-                                    number_of_shares = numOfShares,
-                                    total_amount = total_amount,
-                                    stock_id = stock_information.id,
-                                    user_id = user_information.id
-                                )
-                                portfolio_information.cash_balance += total_amount
-                                portfolio_information.stock_balance -= total_amount
-                                stock_information.number_of_shares_to_purchase += numOfShares
-                                db.session.add(new_transaction)
-                                db.session.commit()
-                                flash('Purchase Order has Been Fulfilled', 'success')
-                                return redirect(url_for('stockviewer', username=username, stockname=stockname))
-                            else:
-                                flash('Error: Insufficient Shares Owned', 'error')
-                        else:
-                            flash('Error: Please Enter in a Valid Number', 'error')
+            numOfShares = stockForm.numOfShares.data
 
-    return render_template('stockviewer.html', user_information=user_information, stock_information=stock_information, portfolio=portfolio_information, stockForm=stockForm, numOfSharesOwned=numOfSharesOwned, stock_price_history_information=stock_price_history_information, market_open=market_open)
+            if stockForm.validate_on_submit():
+                # Buying Stock
+                if request.form['submit'] == 'Buy':
+                    total_amount = stock_information.current_market_price * numOfShares
+                    if numOfShares <= 0:
+                        flash("Error: Number of Shares Cannot be Negative", "danger")
+                    elif total_amount > portfolio_information.cash_balance:
+                        flash("Error: Insufficient Funds", "danger")
+                    elif numOfShares > stock_information.number_of_shares_to_purchase:
+                        flash("Error: Not Enough Shares to Purchase", "danger")
+                    else:
+                        # Execute Purchase
+                        new_transaction = StockPortfolio(
+                            type="Buy",
+                            price_per_share=stock_information.current_market_price,
+                            number_of_shares=numOfShares,
+                            total_amount=total_amount,
+                            stock_id=stock_information.id,
+                            user_id=user_information.id
+                        )
+                        portfolio_information.cash_balance -= total_amount
+                        portfolio_information.stock_balance += total_amount
+                        stock_information.number_of_shares_to_purchase -= numOfShares
+                        db.session.add(new_transaction)
+                        db.session.commit()
+                        flash("Transaction Successful", "success")
+                        return redirect(url_for('stockviewer', username=username, stockname=stockname))
+
+                # Selling Stock
+                elif request.form['submit'] == 'Sell':
+                    total_amount = stock_information.current_market_price * numOfShares
+                    if numOfShares <= 0:
+                        flash("Error: Number of Shares Cannot be Negative", "danger")
+                    elif numOfShares > numOfSharesOwned:
+                        flash("Error: Insufficient Shares", "danger")
+                    else:
+                        # Execute Sale
+                        new_transaction = StockPortfolio(
+                            type="Sell",
+                            price_per_share=stock_information.current_market_price,
+                            number_of_shares=numOfShares,
+                            total_amount=total_amount,
+                            stock_id=stock_information.id,
+                            user_id=user_information.id
+                        )
+                        portfolio_information.cash_balance += total_amount
+                        portfolio_information.stock_balance -= total_amount
+                        stock_information.number_of_shares_to_purchase += numOfShares
+                        db.session.add(new_transaction)
+                        db.session.commit()
+                        flash("Transaction Successful", "success")
+                        return redirect(url_for('stockviewer', username=username, stockname=stockname))
+
+    return render_template(
+        'stockviewer.html',
+        user_information=user_information,
+        stock_information=stock_information,
+        portfolio=portfolio_information,
+        stockForm=stockForm,
+        numOfSharesOwned=numOfSharesOwned,
+        stock_price_history_information=stock_price_history_information,
+        market_open=market_open
+    )
 
 @app.route('/portfolio/<username>')
 def portfolio(username):
@@ -612,7 +651,7 @@ def tradehistory(username):
 def accounttransfer(username):
     user_information = User.query.filter_by(username=username).first()
     portfolio_information = Portfolio.query.filter_by(user_id=user_information.id).first()
-    portfolio_transactions =  PortfolioTransaction.query.filter_by(portfolio_id=portfolio_information.id)
+    portfolio_transactions = PortfolioTransaction.query.filter_by(portfolio_id=portfolio_information.id)
 
     depositForm = DepositForm(request.form)
     withdrawForm = WithdrawForm(request.form)
@@ -622,33 +661,41 @@ def accounttransfer(username):
             if request.form['submit'] == 'Deposit':
                 amount = Decimal(depositForm.amount.data)
                 if depositForm.validate_on_submit():
-                    new_transaction = PortfolioTransaction (
-                            type = "Deposit",
-                            amount = amount,
-                            portfolio_id = portfolio_information.id
-                        )
+                    new_transaction = PortfolioTransaction(
+                        type="Deposit",
+                        amount=amount,
+                        portfolio_id=portfolio_information.id
+                    )
                     portfolio_information.cash_balance += amount
                     db.session.add(new_transaction)
                     db.session.commit()
-                    flash('Funds Transfered Successfully', 'success')
+                    flash("Deposit Successful", "success")  # Success message
                     return redirect(url_for('accounttransfer', username=username))
             elif request.form['submit'] == 'Withdraw':
-                amount = Decimal(depositForm.amount.data)
+                amount = Decimal(withdrawForm.amount.data)
                 if withdrawForm.validate_on_submit():
-                    if amount < portfolio_information.cash_balance:
-                        new_transaction = PortfolioTransaction (
-                                type = "Withdraw",
-                                amount = amount,
-                                portfolio_id = portfolio_information.id
-                            )
+                    if amount <= portfolio_information.cash_balance:
+                        new_transaction = PortfolioTransaction(
+                            type="Withdraw",
+                            amount=amount,
+                            portfolio_id=portfolio_information.id
+                        )
                         portfolio_information.cash_balance -= amount
                         db.session.add(new_transaction)
                         db.session.commit()
+                        flash("Withdrawal Successful", "success")  # Optional success message
                         return redirect(url_for('accounttransfer', username=username))
                     else:
-                        flash('Error: Insufficient Funds', 'error')
+                        flash("Error: Insufficient Funds", "error")  # Error message
 
-    return render_template('accounttransfer.html', user_information=user_information, portfolio=portfolio_information, depositForm=depositForm, withdrawForm=withdrawForm,  portfolio_transactions= portfolio_transactions)
+    return render_template(
+        'accounttransfer.html',
+        user_information=user_information,
+        portfolio=portfolio_information,
+        depositForm=depositForm,
+        withdrawForm=withdrawForm,
+        portfolio_transactions=portfolio_transactions
+    )
 
 @app.route('/adminstocks/<username>', methods=['GET', 'POST'])
 def adminstocks(username):
@@ -657,29 +704,46 @@ def adminstocks(username):
 
     createform = StockForm()
     if createform.validate_on_submit():
-        new_stock = Stock ( stock_name=createform.stock_name.data, 
-                            ticker_symbol=createform.ticker_symbol.data, 
-                            starting_market_price=createform.starting_market_price.data, 
-                            current_market_price=createform.starting_market_price.data, 
-                            number_of_total_shares=createform.number_of_total_shares.data,
-                            number_of_shares_to_purchase=createform.number_of_total_shares.data,
-                            opening_price=createform.starting_market_price.data,
-                            todays_high=createform.starting_market_price.data,
-                            todays_low=createform.starting_market_price.data
-                            )
+        # Validation for existing stocks
+        existing_name = Stock.query.filter_by(stock_name=createform.stock_name.data).first()
+        existing_ticker = Stock.query.filter_by(ticker_symbol=createform.ticker_symbol.data).first()
 
-        db.session.add(new_stock)
-        db.session.commit()
+        if existing_name:
+            flash("Error: Stock Name Already Exists", "error")
+        elif existing_ticker:
+            flash("Error: Ticker Symbol Already Exists", "error")
+        elif createform.number_of_total_shares.data < 0:
+            flash("Error: Number of Shares Cannot Be Negative", "error")
+        elif createform.starting_market_price.data < 0:
+            flash("Error: Price Cannot Be Negative", "error")
+        else:
+            # Create the stock if all validations pass
+            try:
+                new_stock = Stock(
+                    stock_name=createform.stock_name.data,
+                    ticker_symbol=createform.ticker_symbol.data,
+                    starting_market_price=createform.starting_market_price.data,
+                    current_market_price=createform.starting_market_price.data,
+                    number_of_total_shares=createform.number_of_total_shares.data,
+                    number_of_shares_to_purchase=createform.number_of_total_shares.data,
+                    opening_price=createform.starting_market_price.data,
+                    todays_high=createform.starting_market_price.data,
+                    todays_low=createform.starting_market_price.data,
+                )
 
-        new_stock_price_history = StockPriceHistoryDaily (
-            stock_id = new_stock.id
-        )
+                db.session.add(new_stock)
+                db.session.commit()
 
-        db.session.add(new_stock_price_history)
-        db.session.commit()
+                new_stock_price_history = StockPriceHistoryDaily(stock_id=new_stock.id)
+                db.session.add(new_stock_price_history)
+                db.session.commit()
 
-        flash("Stock Created Successfully")
-        return redirect(url_for('adminstocks',  username=username))
+                flash("Stock Created Successfully", "success")
+                return redirect(url_for('adminstocks', username=username))
+            except IntegrityError:
+                db.session.rollback()
+                flash("Error: Duplicate Entry Detected", "error")
+
     return render_template('adminstocks.html', user_information=user_information, createform=createform, stocks=stocks)
 
 @app.route('/adminmarkethours/<username>', methods=['GET', 'POST'])
