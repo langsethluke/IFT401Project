@@ -6,7 +6,7 @@ from sqlalchemy import event
 from flask_wtf import FlaskForm 
 from wtforms import StringField, FloatField, IntegerField, SubmitField, PasswordField, SelectField, TimeField, HiddenField
 from wtforms.validators import DataRequired, Length, Email, EqualTo
-from flask_login import LoginManager, UserMixin, login_user, login_required
+from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user
 from decimal import Decimal
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.interval import IntervalTrigger
@@ -28,7 +28,7 @@ def load_user(id):
 
 # Configuration for Connecting to the MySQL Database
 app.config['SECRET_KEY'] = 'your_secret_key' 
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:Ganesha99$@localhost/Website' 
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:Ganesha99$@localhost/IFTwebsite' 
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False 
 app.config['WTF_CSRF_ENABLED'] = False
 
@@ -333,7 +333,7 @@ def calculate_shares_owned(user_id, stock_id):
 def is_market_open():
     current_day_of_week = get_current_time_date().strftime("%A")  
 
-    if  current_day_of_week == "Saturday":
+    if  current_day_of_week == "Sunday":
         return False
 
     market_hours = MarketHour.query.filter_by(day=current_day_of_week).first()
@@ -777,16 +777,18 @@ def accounttransfer(username):
 
     if request.method == 'POST':
         if 'submit' in request.form:
+            # Handle Deposits
             if request.form['submit'] == 'Deposit':
                 amount = Decimal(depositForm.amount.data)
                 if amount < 0:
-                    flash("Error: Deposit Cannot be Negative", "error")
+                    flash("Error: Deposit Cannot Be Negative", "error")
                 elif depositForm.validate_on_submit():
                     new_transaction = PortfolioTransaction(
                         type="Deposit",
                         amount=amount,
                         portfolio_id=portfolio_information.id
                     )
+                
                     portfolio_information.cash_balance += amount
 
                     db.session.add(new_transaction)

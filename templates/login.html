@@ -19,6 +19,19 @@
               <h2>Please Login</h2>
               <br>
               
+<!-- Flash Messages -->
+{% with messages = get_flashed_messages(with_categories=true) %}
+{% if messages %}
+<div>
+    {% for category, message in messages %}
+    <div class="alert alert-{{ 'success' if category == 'success' else 'danger' }}" role="alert">
+        {{ message }}
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+{% endwith %}
+
 <!-- Display Flash Messages -->
 {% with messages = get_flashed_messages(with_categories=true) %}
   {% if messages %}
