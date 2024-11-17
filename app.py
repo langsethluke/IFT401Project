@@ -6,7 +6,7 @@ from sqlalchemy import event
 from flask_wtf import FlaskForm 
 from wtforms import StringField, FloatField, IntegerField, SubmitField, PasswordField, SelectField, TimeField, HiddenField
 from wtforms.validators import DataRequired, Length, Email, EqualTo
-from flask_login import LoginManager, UserMixin, login_user, login_required
+from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user
 from decimal import Decimal
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.interval import IntervalTrigger
@@ -15,6 +15,7 @@ import random
 from datetime import datetime
 from werkzeug.security import generate_password_hash, check_password_hash
 from zoneinfo import ZoneInfo
+
 
 app = Flask(__name__)
 
@@ -28,7 +29,7 @@ def load_user(id):
 
 # Configuration for Connecting to the MySQL Database
 app.config['SECRET_KEY'] = 'your_secret_key' 
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:password@localhost/stock1' 
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:Ganesha99$@localhost/IFTwebsite' 
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False 
 app.config['WTF_CSRF_ENABLED'] = False
 
@@ -556,6 +557,12 @@ def login():
             flash("Invalid username or password", "error") 
     return render_template('login.html')
 
+@app.route('/logout')
+def logout():
+    logout_user()
+    flash("Successfully Logged Out", "success")
+    return redirect(url_for('login'))
+
 @app.route('/createaccount', methods=["GET", "POST"])
 def createaccount():
     userForm = UserForm()
@@ -770,21 +777,24 @@ def tradehistory(username):
 def accounttransfer(username):
     user_information = User.query.filter_by(username=username).first()
     portfolio_information = Portfolio.query.filter_by(user_id=user_information.id).first()
-    portfolio_transactions =  PortfolioTransaction.query.filter_by(portfolio_id=portfolio_information.id)
+    portfolio_transactions = PortfolioTransaction.query.filter_by(portfolio_id=portfolio_information.id)
 
     depositForm = DepositForm(request.form)
     withdrawForm = WithdrawForm(request.form)
 
     if request.method == 'POST':
         if 'submit' in request.form:
+            # Handle Deposits
             if request.form['submit'] == 'Deposit':
                 amount = Decimal(depositForm.amount.data)
-                if depositForm.validate_on_submit():
-                    new_transaction = PortfolioTransaction (
-                        type = "Deposit",
-                        amount = amount,
-                        portfolio_id = portfolio_information.id
-                        )
+                if amount < 0:
+                    flash("Error: Deposit Cannot Be Negative", "error")
+                elif depositForm.validate_on_submit():
+                    new_transaction = PortfolioTransaction(
+                        type="Deposit",
+                        amount=amount,
+                        portfolio_id=portfolio_information.id
+                    )
                     portfolio_information.cash_balance += amount
 
                     db.session.add(new_transaction)
@@ -792,15 +802,19 @@ def accounttransfer(username):
 
                     flash("Deposit Successful", "success")
                     return redirect(url_for('accounttransfer', username=username))
+            
+            # Handle Withdrawals
             elif request.form['submit'] == 'Withdraw':
                 amount = Decimal(withdrawForm.amount.data)
-                if withdrawForm.validate_on_submit():
+                if amount < 0:
+                    flash("Error: Withdrawal Cannot Be Negative", "error")
+                elif withdrawForm.validate_on_submit():
                     if amount <= portfolio_information.cash_balance:
-                        new_transaction = PortfolioTransaction (
-                            type = "Withdraw",
-                            amount = amount,
-                            portfolio_id = portfolio_information.id
-                            )
+                        new_transaction = PortfolioTransaction(
+                            type="Withdraw",
+                            amount=amount,
+                            portfolio_id=portfolio_information.id
+                        )
                         portfolio_information.cash_balance -= amount
 
                         db.session.add(new_transaction)
