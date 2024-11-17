@@ -28,7 +28,7 @@ def load_user(id):
 
 # Configuration for Connecting to the MySQL Database
 app.config['SECRET_KEY'] = 'your_secret_key' 
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:password@localhost/stock1' 
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:Ganesha99$@localhost/Website' 
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False 
 app.config['WTF_CSRF_ENABLED'] = False
 
@@ -333,7 +333,7 @@ def calculate_shares_owned(user_id, stock_id):
 def is_market_open():
     current_day_of_week = get_current_time_date().strftime("%A")  
 
-    if  current_day_of_week == "Sunday":
+    if  current_day_of_week == "Saturday":
         return False
 
     market_hours = MarketHour.query.filter_by(day=current_day_of_week).first()
@@ -770,7 +770,7 @@ def tradehistory(username):
 def accounttransfer(username):
     user_information = User.query.filter_by(username=username).first()
     portfolio_information = Portfolio.query.filter_by(user_id=user_information.id).first()
-    portfolio_transactions =  PortfolioTransaction.query.filter_by(portfolio_id=portfolio_information.id)
+    portfolio_transactions = PortfolioTransaction.query.filter_by(portfolio_id=portfolio_information.id)
 
     depositForm = DepositForm(request.form)
     withdrawForm = WithdrawForm(request.form)
@@ -779,12 +779,14 @@ def accounttransfer(username):
         if 'submit' in request.form:
             if request.form['submit'] == 'Deposit':
                 amount = Decimal(depositForm.amount.data)
-                if depositForm.validate_on_submit():
-                    new_transaction = PortfolioTransaction (
-                        type = "Deposit",
-                        amount = amount,
-                        portfolio_id = portfolio_information.id
-                        )
+                if amount < 0:
+                    flash("Error: Deposit Cannot be Negative", "error")
+                elif depositForm.validate_on_submit():
+                    new_transaction = PortfolioTransaction(
+                        type="Deposit",
+                        amount=amount,
+                        portfolio_id=portfolio_information.id
+                    )
                     portfolio_information.cash_balance += amount
 
                     db.session.add(new_transaction)
@@ -792,15 +794,18 @@ def accounttransfer(username):
 
                     flash("Deposit Successful", "success")
                     return redirect(url_for('accounttransfer', username=username))
+
             elif request.form['submit'] == 'Withdraw':
                 amount = Decimal(withdrawForm.amount.data)
-                if withdrawForm.validate_on_submit():
+                if amount < 0:
+                    flash("Error: Withdrawal Cannot be Negative", "error")
+                elif withdrawForm.validate_on_submit():
                     if amount <= portfolio_information.cash_balance:
-                        new_transaction = PortfolioTransaction (
-                            type = "Withdraw",
-                            amount = amount,
-                            portfolio_id = portfolio_information.id
-                            )
+                        new_transaction = PortfolioTransaction(
+                            type="Withdraw",
+                            amount=amount,
+                            portfolio_id=portfolio_information.id
+                        )
                         portfolio_information.cash_balance -= amount
 
                         db.session.add(new_transaction)
@@ -811,7 +816,14 @@ def accounttransfer(username):
                     else:
                         flash("Error: Insufficient Funds", "error")
 
-    return render_template('accounttransfer.html', user_information=user_information, portfolio=portfolio_information, depositForm=depositForm, withdrawForm=withdrawForm, portfolio_transactions=portfolio_transactions)
+    return render_template(
+        'accounttransfer.html',
+        user_information=user_information,
+        portfolio=portfolio_information,
+        depositForm=depositForm,
+        withdrawForm=withdrawForm,
+        portfolio_transactions=portfolio_transactions,
+    )
 
 @app.route('/adminstocks/<username>', methods=['GET', 'POST'])
 def adminstocks(username):
