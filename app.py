@@ -15,6 +15,8 @@ import random
 from datetime import datetime
 from werkzeug.security import generate_password_hash, check_password_hash
 from zoneinfo import ZoneInfo
+import email_validator
+
 
 app = Flask(__name__)
 
@@ -28,7 +30,7 @@ def load_user(id):
 
 # Configuration for Connecting to the MySQL Database
 app.config['SECRET_KEY'] = 'your_secret_key' 
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:Ganesha99$@localhost/IFTwebsite' 
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:password@localhost/stock1' 
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False 
 app.config['WTF_CSRF_ENABLED'] = False
 
@@ -331,9 +333,9 @@ def calculate_shares_owned(user_id, stock_id):
 
 # Helps define the if the market is open or closed
 def is_market_open():
-    current_day_of_week = get_current_time_date().strftime("%A")  
+    current_day_of_week = get_current_time_date().strftime("%A")
 
-    if  current_day_of_week == "Sunday":
+    if current_day_of_week == "Saturday":
         return False
 
     market_hours = MarketHour.query.filter_by(day=current_day_of_week).first()
